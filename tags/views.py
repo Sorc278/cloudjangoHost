@@ -39,6 +39,9 @@ def get_suggested_tags_json(request):
 	post = get_object_or_404(Post, filename=request.POST.get('filename'))
 	sugs = TagSuggestion.objects.filter(post=post)
 	
+	if not sugs.exists():
+		return JsonResponse({})
+	
 	sug_list = sort_suggests(sugs)
 	
 	sug_dict = {k: sug_list[k] for k in range(len(sug_list))}
@@ -76,12 +79,14 @@ def add_tag_func(filename, tagname, user):
 		TagSuggestion.objects.filter(post=post, tag=tag).delete()
 		
 def sort_suggests(suggests):
+	tag_set = suggests.first().post.tag_set.values_list('id', flat=True)
+	print(tag_set)
 	sug_list = []
 	i = 0
 	for sug in suggests:
 		sug_list.append({
 			'name': sug.tag.name,
-			'percent': sug.percent()
+			'percent': sug.percent_with_tag_set(tag_set)
 		})
 	sug_list.sort(key=lambda tup: tup['percent'], reverse=True)
 	return sug_list

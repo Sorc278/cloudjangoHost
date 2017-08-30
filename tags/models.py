@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
-from django.db.models import Q
-from django.db.models import Sum
+from django.db.models import Q, F
+from django.db.models import Sum, Avg
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save, pre_save
@@ -73,14 +73,19 @@ class TagSuggestion(models.Model):
 	tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
 	
 	def percent(self):
-		occ = self.post.tag_set.aggregate(Sum('occurences'))['occurences__sum']
-		if occ is None:
-			return 0
 		tag_set = self.post.tag_set.values_list('id', flat=True)
-		ch_occ = TagChance.objects.filter(Q(parent__in=tag_set, child=self.tag) | Q(parent=self.tag, child__in=tag_set)).aggregate(Sum('child_num'))['child_num__sum']
-		if ch_occ is None:
-			return 0
-		return int((100*ch_occ)/occ)
+		per1 = TagChance.objects.filter(parent__in=tag_set, child=self.tag).aggregate(percent=Sum(100 * F('child_num') / F('parent__occurences')))['percent']
+		per2 = TagChance.objects.filter(parent=self.tag, child__in=tag_set).aggregate(percent=Sum(100 * F('child_num') / F('child__occurences')))['percent']
+		per1 = per1 if not per1 is None else 0
+		per2 = per2 if not per2 is None else 0
+		return ((per1 + per2) / len(tag_set))
+
+	def percent_with_tag_set(self, tag_set):
+		per1 = TagChance.objects.filter(parent__in=tag_set, child=self.tag).aggregate(percent=Sum(100 * F('child_num') / F('parent__occurences')))['percent']
+		per2 = TagChance.objects.filter(parent=self.tag, child__in=tag_set).aggregate(percent=Sum(100 * F('child_num') / F('child__occurences')))['percent']
+		per1 = per1 if not per1 is None else 0
+		per2 = per2 if not per2 is None else 0
+		return ((per1 + per2) / len(tag_set))
 		
 	class Meta:
 		indexes = [
