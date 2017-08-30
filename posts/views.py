@@ -5,6 +5,8 @@ from django.contrib.auth.decorators import login_required
 
 from tags.models import Tag, TagSuggestion
 
+from cloudjangohost.settings import TAG_DICT_URL
+
 from .models import Post, Extra
 
 # Create your views here.
@@ -19,6 +21,7 @@ def show_post(request, board, filename):
         'extras': Extra.objects.filter(post=post),
         'board': board,
         'tags': tags,
+        'TAG_DICT_URL': TAG_DICT_URL,
     }
     return render(request, "posts/post.html", cont)
 

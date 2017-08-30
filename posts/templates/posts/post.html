@@ -46,7 +46,7 @@
 <script type="text/javascript">
     function init(){
         resizeToFit();
-		autocompleteInit("{% url 'tags:get_all_tags_json' %}", "tagAddBox");
+		autocompleteInit("{{ TAG_DICT_URL }}", "tagAddBox");
 		$('#sug_button').click(getSugTags)
 	}
 </script>

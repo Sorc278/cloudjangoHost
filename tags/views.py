@@ -43,14 +43,6 @@ def get_suggested_tags_json(request):
 	
 	sug_dict = {k: sug_list[k] for k in range(len(sug_list))}
 	return JsonResponse(sug_dict)
-	
-@login_required
-def get_all_tags_json(request):
-	import json
-	from cloudjangohost.settings import TAG_DICT_PATH
-	with open(TAG_DICT_PATH, 'r') as fp:
-		tag_dict = json.load(fp)
-	return JsonResponse(tag_dict)
 
 @login_required
 def add_suggested_tag(request):
