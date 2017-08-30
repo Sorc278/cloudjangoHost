@@ -1,0 +1,43 @@
+{% extends 'base_nav.html' %}
+
+{% block title %} Tag {% endblock %}
+
+{% block jsFunctions %}
+
+{% endblock %}
+
+{% block jsInit %}
+
+{% endblock %}
+
+{% block content %}
+<div class="container">
+	<div class="row">
+		<div class="card">
+			<div class="card-content">
+				<span class="card-title">{{ tag.name }}</span>
+				<p>{{ tag.description }}</p>
+				<p>tag type</p>
+				<p>tag board</p>
+				<p>is staff checkbox</p>
+				<p>Times used: {{ tag.occurences }}</p>
+				<hr>
+				<div class="row">
+					<div class="col s12 m6">
+						<h5>Implied by:</h5>
+						{% for c in chancesFrom %}
+							<p>{{ c.percent }}% -- {{ c.name }}</p>
+						{% endfor %}
+					</div>
+					<div class="col s12 m6">
+						<h5>Implies:</h5>
+						{% for c in chancesTo %}
+							<p>{{ c.percent }}% -- {{ c.name }}</p>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+	    </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends 'base_nav.html' %}
+
+{% block title %} Post {% endblock %}
+
+{% block extraHrefs %}
+    {% if post.extension_type == 'video' %}
+        {% load static%}
+        <link href="{% static 'videojs/video-js.min.css' %}" rel="stylesheet">
+    	<script>window.HELP_IMPROVE_VIDEOJS = false;</script>
+    	<script src="{% static 'videojs/video.min.js' %}"></script>
+    	<script src="{% static 'subtitle-octopus/subtitles-octopus.js' %}"></script>
+    {% endif %}
+{% endblock %}
+
+{% block jsFunctions %}
+<script>
+	window.CSRF_TOKEN = "{{ csrf_token }}";
+	
+	function resizeToFull(){
+		document.getElementById("content").style.height="100%";
+	}
+	function resizeToFit(){
+		document.getElementById("content").style.height="100%";
+		scrH=window.screen.availHeight*0.8;
+		if(document.getElementById("content").offsetHeight>scrH)
+			document.getElementById("content").style.height=String(scrH)+"px";
+	}
+	function changeByPx(x){
+		var content = document.getElementById("content");
+		var contentStyle = getComputedStyle(content);
+		var h = content.clientHeight - parseFloat(contentStyle.paddingTop) - parseFloat(contentStyle.paddingBottom);
+		var w = content.clientWidth - parseFloat(contentStyle.paddingLeft) - parseFloat(contentStyle.paddingRight);
+		var wrap = document.getElementById("content_wrap");
+		var wrapStyle = getComputedStyle(wrap);
+		var max_w = wrap.clientWidth - parseFloat(wrapStyle.paddingLeft) - parseFloat(wrapStyle.paddingRight);
+		
+		var max_h = (max_w/w)*h
+		final_h = Math.min(max_h, h+x)
+		content.style.height=String(final_h)+"px";
+	}
+</script>
+<script type="text/javascript" src="{% static 'js/autocompleteTags.js' %}"></script>
+{% endblock %}
+
+{% block jsInit %}
+<script type="text/javascript">
+    function init(){
+        resizeToFit();
+		autocompleteInit("{% url 'tags:get_all_tags_json' %}", "tagAddBox");
+		$('#sug_button').click(getSugTags)
+	}
+</script>
+{% endblock %}
+
+{% block content %}
+<br>
+<div class="row">
+    <div class="col s2">
+        <!-- size buttons -->
+        <button class="btn-floating waves-effect waves-light deep-purple darken-4" onclick="resizeToFull()"><i class="material-icons">swap_horiz</i></button>
+        <button class="btn-floating waves-effect waves-light deep-purple darken-4" onclick="resizeToFit()"><i class="material-icons">swap_vert</i></button>
+        <button class="btn-floating waves-effect waves-light deep-purple darken-4" onclick="changeByPx(-150)"><i class="material-icons">remove</i></button>
+        <button class="btn-floating waves-effect waves-light deep-purple darken-4" onclick="changeByPx(150)"><i class="material-icons">add</i></button>
+        
+		<div class="card grey darken-3 white-text">
+			<div class="card-content">
+				{% for tag in tags %}
+					<p><a href='.'>?</a> <a href='.'>{{ tag.name }}</a></p>
+				{% endfor %}
+				<hr>
+				<form id="addForm" action="{% url 'tags:add_tag' %}" method="post">
+					{% csrf_token %}
+					<div class="input-field">
+						<input id="tagAddBox" name="tag" type="text" autocomplete='off'>
+						<label for="tagAddBox"></label>
+					</div>
+					<input type="text" value="{{ post.filename }}" name="filename" hidden>
+					<input type="text" value="{{ board }}" name="board" hidden>
+					<button class="btn waves-effect waves-light deep-purple darken-4" type="submit">Add</button>
+					<p id="sug_button" class="activator btn waves-effect waves-light deep-purple darken-4">Suggest</p>
+				</form>
+				<hr>
+				{% with ext=post.extension_type %}
+					{% if ext == "image" %}
+						<p><a href="https://iqdb.org/?url={{ post.url_post }}" target="_blank">IQDB search</a></p>
+					{% endif %}
+					{% if ext == "video" or ext == "music" %}
+						<p><a href=".">Add to Music List</a></p>
+					{% endif %}
+					<hr>
+					<p>By: {{ post.user.username }}</p>
+					<p>Date: {{ post.date|date:"Y-m-d H:i:s" }}</p>
+					<p>Size: {{ post.human_size }}</p>
+					<p style="word-wrap: break-word;">Source:<br><a href="{{ post.source }}">{{ post.source }}</a></p>
+				{% endwith %}
+				<hr>
+				<p><a href="{% url 'downloader:extra' filename=post.filename board=board %}">Extras</a></p>
+			</div>
+			<div class="card-reveal grey darken-3 white-text">
+				<span class="card-title grey-text text-darken-4">Suggested Tags<i class="material-icons right">close</i></span>
+					{% include 'tags/suggestedTags.html' %}
+			</div>
+	    </div>
+    </div>
+    
+    <div id="content_wrap" class="col s10 center">
+    	{% with ext=post.extension_type %}
+	    	{% if ext == "image" %}
+				<img id="content" class="responsive-img" src="{{ post.url_post }}"></img>
+			{% elif ext == "music" %}
+				<img id='content' class='responsive-img' src='thumbnail'/>
+				<audio id='content' class='responsive-img' src='{{ post.url_post }}' autoplay='' loop='' controls='true' style='width:90%'></audio>
+			{% elif ext == "video" %}
+				<video id="content" class="video-js" style="position: relative !important; width: 100% !important;" controls loop preload="auto" data-setup="{}">
+					<source src="{{ post.url_post }}" type="video/{{ post.extension }}">
+					<!--include this to show poster later      poster="MY_VIDEO_POSTER.jpg" data-setup="{}">-->
+				</video>
+				<br>
+				{% for extra in extras %}
+					{% if 'subtitles' == extra.extra_type %}
+						{% if request.GET.subtitles == extra.extra_filename|stringformat:"i" %}
+							<a class="btn deep-purple" href="{{ request.path }}">{{ extra.description }}</a>
+							<script>
+								window.onload = (function(){
+									resizeToFit();
+									videojs('content').ready(function (){
+										var video = this.tech_.el_;
+										window.SubtitlesOctopusOnLoad = function () {
+											var options = {
+												video: video,
+												subUrl: '../store/".$post["storageDisk"]."/".$post["filename"]."extra".$_GET["subs"].".ass',
+												workerUrl: '../js/subtitles-octopus-worker.js'
+											};
+											window.octopusInstance = new SubtitlesOctopus(options);
+										};
+										if(SubtitlesOctopus){
+											SubtitlesOctopusOnLoad();
+										}
+									});
+								});
+							</script>
+						{% else %}
+							<a class="btn deep-purple darken-4" href="{{ request.path }}?subtitles={{ extra.extra_filename }}">{{ extra.description }}</a>
+						{% endif %}
+					{% endif %}
+				{% endfor %}
+			{% endif %}
+    	{% endwith %}
+    </div>
+</div>
+{% endblock %}
+						echo "<script>window.onload = (function(){resizeToFit();videojs('content').ready(function (){var video = this.tech_.el_;window.SubtitlesOctopusOnLoad = function () {var options = {video: video, subUrl: '../store/".$post["storageDisk"]."/".$post["filename"]."extra".$_GET["subs"].".ass', workerUrl: '../js/subtitles-octopus-worker.js'};window.octopusInstance = new SubtitlesOctopus(options);};if(SubtitlesOctopus){SubtitlesOctopusOnLoad();}});});</script>";
+				}
+				else if($row["ftype"]=="pdf")
+				{
+					echo "<div id='content'><embed class='img-responsive center-block' style='width:100%; height: 85vh;' src='../store/".$row["storageDisk"]."/".$row["filename"].".".$row["ftype"]."' type='application/pdf'></embed></div>\n";
+				}
+
+				?>

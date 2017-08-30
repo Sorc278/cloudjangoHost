@@ -1,0 +1,30 @@
+Celery - delete old tasks (use before starting for proper function of donwloader):
+celery -A cloudjangohost purge
+
+Running celery worker manually:
+celery -A cloudjangohost worker --loglevel=info
+celery -A cloudjangohost worker -l info  -c 2 -n my_worker -Ofair
+
+RabbitMQ and Celery info:
+http://docs.celeryproject.org/projects/django-celery/en/2.4/introduction.html
+http://docs.celeryproject.org/en/latest/django/first-steps-with-django.html
+http://docs.celeryproject.org/en/latest/getting-started/next-steps.html#next-steps
+http://docs.celeryproject.org/en/latest/getting-started/first-steps-with-celery.html#running-the-celery-worker-server
+
+http://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html
+
+Things to run for base project:
+-external
+1. nginx
+2. rabbitmq
+3. MariaDB
+4. mount the HDD
+5. mpd
+
+-internal
+1. uWSGI
+2. celery worker
+
+-other external
+1. postfix
+2. dovecot

@@ -1,0 +1,46 @@
+{% extends 'base_nav.html' %}
+
+{% block title %} Queue {% endblock %}
+
+{% block jsFunctions %}
+
+{% endblock %}
+
+{% block jsInit %}
+
+{% endblock %}
+
+{% block content %}
+<div class="row">
+	<div class="card white">
+		<div class="card-content">
+			<span class="card-title">Queue</span>
+			<hr>
+			<table>
+				<thead>
+					<tr>
+						<th>Date</th>
+						<th>User</th>
+						<th>Source</th>
+						<th>Status</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for u in uploads %}
+						<tr>
+							<td>{{ u.date|date:"Y-m-d H:i:s" }}</td>
+							<td>{{ u.user.username }}</td>
+							<td>{{ u.filename }}{{ u.url }}</td>
+							<td>{{ u.status }}
+							{% if u.description%}
+								: {{ u.description }}
+							{% endif %}
+							</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+    </div>
+</div>
+{% endblock %}

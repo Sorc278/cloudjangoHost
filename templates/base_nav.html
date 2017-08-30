@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %} Title Here {% endblock %}
+
+{% block extraHrefs %}{% endblock %}
+
+{% block jsFunctions %}{% endblock %}
+
+{% block jsInit %}
+    <script type="text/javascript">function init(){}</script>
+{% endblock %}
+
+{% block nav %}
+<!-- Dropdown Structure -->
+<ul id="otherDropdown" class="dropdown-content">
+    <li><a href="{% url 'home:profile' %}">Profile</a></li>
+    <li><a href=".">Request Tag</a></li>
+    <li><a href="{% url 'tags:tag_list' %}">Tag List</a></li>
+    <li><a href="{% url 'scratchpad:show_notes' %}">Scratchpad</a></li>
+    <li><a href=".">Radio</a></li>
+    <li><a href="{% url 'downloader:queue' %}">Queue</a></li>
+</ul>
+{% if user.is_staff %}
+<ul id="adminDropdown" class="dropdown-content">
+    <li><a href=".">Storage</a></li>
+</ul>
+{% endif %}
+<nav class="purple darken-4">
+    <div class="container">
+        <div class="nav-wrapper">
+            <a href="{% url 'home:homepage' %}" class="brand-logo">Sorc278 CloudHost</a>
+            <a href="#" data-activates="mobileMenu" class="button-collapse"><i class="material-icons">menu</i></a>
+            <ul class="right hide-on-med-and-down">
+                <li><a href="{% url 'submit:submit' %}">Submit</a></li>
+                <li><a href="#!">Posts</a></li>
+                <li><a href="{% url 'posts:posts' board=1 page=1 %}"><span class="bigLetter">S</span></a></li>
+                <li><a href="{% url 'posts:posts' board=2 page=1 %}"><span class="bigLetter">G</span></a></li>
+                <li><a href="{% url 'posts:posts' board=3 page=1 %}"><span class="bigLetter">R</span></a></li>
+                <!-- Dropdown Trigger -->
+                <li><a class="dropdown-button" data-activates="otherDropdown">Other<i class="material-icons right">arrow_drop_down</i></a></li>
+                {% if user.is_staff %}
+                    <li><a class="dropdown-button" data-activates="adminDropdown">Admin<i class="material-icons right">arrow_drop_down</i></a></li>
+                {% endif %}
+                <li><a href="{% url 'welcome:logout' %}">Log Out</a></li>
+            </ul>
+            <ul class="side-nav" id="mobileMenu">
+                <li><a href="{% url 'submit:submit' %}">Submit</a></li>
+                <li><a href="#!">Posts</a></li>
+                <li><a href="{% url 'posts:posts' board=1 page=1 %}"><span class="bigLetter">S</span></a></li>
+                <li><a href="{% url 'posts:posts' board=2 page=1 %}"><span class="bigLetter">G</span></a></li>
+                <li><a href="{% url 'posts:posts' board=3 page=1 %}"><span class="bigLetter">R</span></a></li>
+                <ul class="collapsible collapsible-accordian">
+                    <li>
+                        <a class="collapsible-header waves-effect">Other<i class="material-icons right">arrow_drop_down</i></a>
+                        <div class="collapsible-body">
+                            <ul>
+                                <li><a href="{% url 'home:profile' %}">Profile</a></li>
+                                <li><a href=".">Request Tag</a></li>
+                                <li><a href="{% url 'tags:tag_list' %}">Tag List</a></li>
+                                <li><a href="{% url 'scratchpad:show_notes' %}">Scratchpad</a></li>
+                                <li><a href=".">Radio</a></li>
+                                <li><a href="{% url 'downloader:queue' %}">Queue</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+                {% if user.is_staff %}
+                <ul class="collapsible collapsible-accordian">
+                    <li>
+                        <a class="collapsible-header waves-effect">Admin<i class="material-icons right">arrow_drop_down</i></a>
+                        <div class="collapsible-body">
+                            <ul>
+                                <li><a href=".">Storage</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+                {% endif %}
+                <li><a href="{% url 'welcome:logout' %}">Log Out</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<script>
+    $(document).ready(function(){
+        $(".button-collapse").sideNav();
+        $(".dropdown-button").dropdown();
+    });
+</script>
+{% endblock %}
+
+{% block content %}{% endblock %}

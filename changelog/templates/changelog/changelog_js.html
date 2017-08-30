@@ -1,0 +1,24 @@
+<script type="text/javascript">
+window.CSRF_TOKEN = "{{ csrf_token }}";
+
+function getChanges(numToGet){
+	var left = '<li class="collection-item"><span class="card-title">';
+	var mid = '</span><p>';
+	var mid_br = '</p><hr>';
+	var right = '</li>';
+	$.ajax({
+		url: "{% url 'changelog:get_changelog' %}",
+		type: "POST",
+		data: {csrfmiddlewaretoken: window.CSRF_TOKEN, numToGet: numToGet},
+		success: function(data){
+			if(data)
+			{
+                for(key in data){
+                	entry = data[key];
+                	$('#changes').append(left+entry['title']+mid+entry['time']+mid_br+entry['text']+right);
+                }
+			}
+		}
+	});
+}
+</script>

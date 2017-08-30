@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col s12">
+            <h1><a href="{% url 'welcome:login' %}">Sorc278's Cloud Host</a></h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s8">
+            <form action="{% url 'welcome:register' %}" method="post">
+                {% csrf_token %}
+                <div class="card white">
+                    <div class="card-content">
+                        <span class="card-title">Register</span>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <i class="material-icons prefix">vpn_key</i>
+                                <input name="key" id="key" type="text">
+                                <label for="key">Invitation Key</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <i class="material-icons prefix">account_circle</i>
+                                <input name="username" id="username" type="text">
+                                <label for="username">Username</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <i class="material-icons prefix">lock</i>
+                                <input name="password" id="password" type="password">
+                                <label for="password">Password</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <i class="material-icons prefix">lock</i>
+                                <input name="password_conf" id="password_conf" type="password">
+                                <label for="password_conf">Confirm Password</label>
+                            </div>
+                        </div>
+                        {% if err %}
+                            <span class="card-title red-text">Error</span>
+                            <p>{{err}}</p>
+                        {% endif %}
+                    </div>
+                    <div class="card-action">
+                        <button class="btn waves-effect waves-light deep-purple darken-4" type="submit">Register</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col s4">
+            <div class="card white darken-3">
+                <div class="card-content">
+                    <span class="card-title">Requirements</span>
+                    <p>Username:</p>
+                    <ul class="browser-default">
+                        <li>At least 4 characters</li>
+                    </ul>
+                    <p>Password:</p>
+                    <ul class="browser-default">
+                        <li>At least 10 characters</li>
+                        <li>At least one of each:
+                            <ul class="browser-default">
+                                <li>Uppercase letter</li>
+                                <li>Lower case letter</li>
+                                <li>Number</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

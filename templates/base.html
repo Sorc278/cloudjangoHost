@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>
+            {% block title %} Title Here {% endblock %} | Sorc278Host
+        </title>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        {% load static %}
+        <!-- Materialize css -->
+        <link href="{% static 'css/materialize.css' %}" rel="stylesheet"/ type="text/css">
+        <!-- Materialize icons css -->
+        <link href="{% static 'css/icons.css' %}" rel="stylesheet"/ type="text/css">
+        <!-- Awesomplete css -->
+        <link href="{% static 'css/awesomplete.css' %}" rel="stylesheet"/ type="text/css">
+        <!-- Custom CSS -->
+        <link href="{% static 'css/cloudHost.css' %}" rel="stylesheet"/ type="text/css">
+        
+        <!-- jQuery -->
+        <script src="{% static 'js/jquery.js' %}"></script>
+        <!-- Materialize JavaScript -->
+        <script src="{% static 'js/materialize.min.js' %}"></script>
+        <!-- Awesomplete suggestions -->
+        <script src="{% static 'js/awesomplete.min.js' %}" async></script>
+        
+        {% block extraHrefs %}{% endblock %}
+        
+        {% block jsFunctions %}{% endblock %}
+        
+        {% block jsInit %}
+            <script type="text/javascript">function init(){}</script>
+        {% endblock %}
+    </head>
+    <body onload="init()">
+        {% block nav %}{% endblock %}
+        {% block content %}{% endblock %}
+    </body>
+</html>

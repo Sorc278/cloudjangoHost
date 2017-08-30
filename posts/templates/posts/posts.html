@@ -1,0 +1,43 @@
+{% extends 'base_nav.html' %}
+
+{% block title %} Posts {% endblock %}
+
+{% block jsFunctions %}
+{% load static %}
+<script type="text/javascript" src="{% static 'js/autocompleteTags.js' %}"></script>
+{% endblock %}
+
+{% block jsInit %}
+<script type="text/javascript">
+    function init(){
+        autocompleteInit("{% url 'tags:get_all_tags_json' %}", "search");
+	}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <form action="{% url 'posts:posts' board=board page=1 %}">
+        <div class="input-field">
+            <input id="search" type="search" name='tags'>
+            <label class="label-icon" for="search"><i class="material-icons">search</i></label>
+        </div>
+    </form>
+</div>
+<div class="row center">
+    <ul class="pagination">
+	    {% for page in pages %}
+	        <li class="waves-effect"><a href="{% url 'posts:posts' board=board page=page %}" style="color: white;">{{ page }}</a></li>
+	    {% endfor %}
+    </ul>
+</div>
+<div class="row">
+    {% for post in posts %}
+        <div class="col thumb">
+            <a href="{{ post.url_post }}">
+                <img src="{{ post.url_thumb }}"></img>
+            </a>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

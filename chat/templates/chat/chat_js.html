@@ -1,0 +1,65 @@
+<script type="text/javascript">
+var lastID=-1;
+window.CSRF_TOKEN = "{{ csrf_token }}";
+window.CHAT_USERNAME = "{{ user.username }}";
+
+var col_you = '<li class="collection-item deep-purple lighten-4">';
+var col = '<li class="collection-item">';
+var left = '<span class="left">';
+var mid = '</span><span class="right">';
+var mid_br = '</span><br>';
+var right = '</li>';
+
+//https://realpython.com/blog/python/getting-started-with-django-channels/
+//TODO: implement Django channels later for use with chat and queue
+function refreshUsers(){
+    $.ajax({
+		url: "{% url 'chat:get_users_online' %}",
+		type: "POST",
+		data: {csrfmiddlewaretoken: window.CSRF_TOKEN},
+		success: function(data){
+		    document.getElementById("usersOnline").innerHTML = "Online: ";
+		    for(key in data){
+		        document.getElementById("usersOnline").innerHTML += data[key] + " ";
+		    }
+		}
+	});
+}
+
+function refreshChat(){
+	$.ajax({
+		url: "{% url 'chat:get_chat' %}",
+		type: "POST",
+		data: {csrfmiddlewaretoken: window.CSRF_TOKEN, lastID: lastID},
+		success: function(data){
+			if(data)
+			{
+                lastID=parseInt(data['lastID']);
+                for(key in data['msg']){
+                	entry = data['msg'][key];
+                    if(entry['username'] == window.CHAT_USERNAME)
+                        $('#chat').prepend(col_you+left+entry['username']+mid+entry['time']+mid_br+entry['message']+right);
+                    else
+                        $('#chat').prepend(col+left+entry['username']+mid+entry['time']+mid_br+entry['message']+right);
+                }
+			}
+		}
+	});
+}
+
+function submitChat(){
+	$.ajax({
+		url: "{% url 'chat:post_message' %}",
+		type: "POST",
+		data: {csrfmiddlewaretoken: window.CSRF_TOKEN, message: document.getElementById('message').value},
+	});
+	document.getElementById('message').value="";
+}
+
+function chat_init(user_interval, chat_interval){
+    refreshUsers();
+    refreshChat();
+    setInterval(refreshUsers, user_interval);
+    setInterval(refreshChat, chat_interval);
+}
+</script>

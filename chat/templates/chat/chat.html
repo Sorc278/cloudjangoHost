@@ -1,0 +1,16 @@
+<div class="card white">
+    <div class="card-content" style="height:100vh; overflow-y:auto;">
+        <span class="card-title">Chat</span>
+        <hr>
+		<div class="input-field col s12">
+			<textarea id="message" class="materialize-textarea" maxlength="500"></textarea>
+			<label for="message">Message</label>
+		</div>
+		<button class="btn waves-effect waves-light deep-purple darken-4" onclick="submitChat()">Send</button>
+		<hr>
+		<p id="usersOnline"></p>
+		<hr>
+		<ul class="collection" id="chat">
+		</ul>
+    </div>
+</div>

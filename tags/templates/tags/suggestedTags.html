@@ -1,0 +1,48 @@
+<!-- Include this and add $('#sug_button').click(getSugTags) to some button
+or just call getSugTags in some other way
+-->
+<div id="sug_tags"></div>
+<script type="text/javascript">
+//AJAX fetch the suggestions when suggested tags are opened
+	got_sugs = false;
+	function getSugTags(){
+		if(got_sugs) return;
+	    $.ajax({
+			url: "{% url 'tags:get_suggested_tags_json' %}",
+			type: "POST",
+			data: {csrfmiddlewaretoken: window.CSRF_TOKEN, filename: "{{ post.filename }}"},
+			success: function(data){
+				if(data) for(key in data){
+					id = 'sug_tag_'+key;
+					a_id = 't_a_'+key;
+					r_id = 't_r_'+key;
+					$('#sug_tags').append('<p id="'+id+'">'+data[key]['percent']+'% -- '+data[key]['name']+
+						'<i id="'+r_id+'" class="material-icons right red-text" style="cursor: pointer;">clear</i>'+
+						'<i id="'+a_id+'" class="material-icons right green-text" style="cursor: pointer;">check</i></p>'
+					);
+					$('#'+r_id).bind("click", {tag: data[key]['name'], id: id}, removeSug);
+					$('#'+a_id).bind("click", {tag: data[key]['name'], id: id}, addSug);
+				}
+				got_sugs=true;
+			}
+		});
+	}
+	function addSug(event){
+		d = event.data;
+		$.ajax({
+			url: "{% url 'tags:add_suggested_tag' %}",
+			type: "POST",
+			data: {csrfmiddlewaretoken: window.CSRF_TOKEN, tag: d.tag, filename: "{{ post.filename }}"},
+		});
+		document.getElementById(d.id).outerHTML='';
+	}
+	function removeSug(event){
+		d = event.data;
+		$.ajax({
+			url: "{% url 'tags:remove_suggested_tag' %}",
+			type: "POST",
+			data: {csrfmiddlewaretoken: window.CSRF_TOKEN, tag: d.tag, filename: "{{ post.filename }}"},
+		});
+		document.getElementById(d.id).outerHTML='';
+	}
+</script>

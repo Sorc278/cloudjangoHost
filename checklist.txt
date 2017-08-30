@@ -1,0 +1,11 @@
+Checklist before deployment:
+1. Media root set to correct path
+2. Correct database set
+3. Correct allowed hosts set
+4. DEBUG set to False
+5. Production secret key is used
+6. Check that correct Celery options are set, especially for mod_wsgi http://docs.celeryproject.org/projects/django-celery/en/2.4/introduction.html
+
+
+Requirements:
+1. RabbitMQ server

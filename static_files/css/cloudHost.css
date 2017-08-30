@@ -1,0 +1,104 @@
+html, body {
+	background-color: black;
+}
+
+body {
+	overflow-y: scroll;
+}
+
+
+/*
+letter for use in navbar
+*/
+.bigLetter{
+	font-size: 30px;
+	font-weight: bold;
+}
+
+
+/*
+reset materialize removing bullets
+*/
+ul.browser-default li {
+  list-style-type: initial;
+}
+
+
+/*
+Custom Materialize tab colours
+*/
+.tabs .tab a{
+	color:#9575cd;
+} /*Black color to the text*/
+
+.tabs .tab a:hover {
+	background-color:#ede7f6;
+	color:#311b92;
+} /*Text color on hover*/
+
+.tabs .tab a.active {
+	background-color:#e1bee7;
+	color:#311b92;
+} /*Background and text color when a tab is active*/
+
+.tabs .indicator {
+	background-color:#8e24aa;
+} /*Color of underline*/
+
+
+
+/*
+For page listing posts
+*/
+.thumb
+{
+	padding: 0 !important;
+}
+
+.thumb a
+{
+	width: 230px;
+	height: 230px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.thumb img
+{
+	display: block;
+	max-width: 230px;
+	max-height: 230px;
+}
+
+/*
+For showing post
+*/
+.content{
+		display: flex;
+		justify-content: center;
+}
+
+.table
+{
+	background-color: #f6f6f6;
+	color: black;
+	font-size: 20px;
+	border-radius: 8px;
+}
+
+/*links*/
+.link-unstyled {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+.link-unstyled:link {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+.link-unstyled:hover {
+  color: inherit;
+  text-decoration: inherit;
+}
