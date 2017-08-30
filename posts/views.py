@@ -40,6 +40,7 @@ def show_posts(request, board, page):
         'board': board,
         'posts': posts_c,
         'pages': paginator.page_range,
+        'TAG_DICT_URL': TAG_DICT_URL,
     }
     return render(request, "posts/posts.html", cont)
 

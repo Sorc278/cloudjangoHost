@@ -10,7 +10,7 @@
 {% block jsInit %}
 <script type="text/javascript">
     function init(){
-        autocompleteInit("{% url 'tags:get_all_tags_json' %}", "search");
+        autocompleteInit("{{ TAG_DICT_URL }}", "search");
 	}
 </script>
 {% endblock %}
