@@ -32,7 +32,7 @@ def show_posts(request, board, page):
         'board': board
     }
     posts = get_posts(tags, options)
-    paginator = Paginator(posts, 80)
+    paginator = Paginator(posts, 88)
     #TODO: add exceptions
     posts_c = contextify(paginator.page(page).object_list, board)
     
@@ -77,7 +77,7 @@ def get_posts(tags_string, options):
             
             if neg_tags:
                 for id in get_excluded_ids(neg_tags, options):
-                    if posts[id]:
+                    if id in posts:
                         del posts[id]
             
             post_list = []
