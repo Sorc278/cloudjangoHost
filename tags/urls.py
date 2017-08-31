@@ -11,4 +11,5 @@ urlpatterns = [
 	url(r'^remove_suggested_tag$', views.remove_suggested_tag, name='remove_suggested_tag'),
 	url(r'^tag_list$', views.tag_list, name='tag_list'),
 	url(r'^tag_description/(?P<tag>.*)$', views.tag_description, name='tag_description'),
+	url(r'^get_tag_lists$', views.get_tag_lists, name='get_tag_lists'),
 ]

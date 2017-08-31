@@ -101,3 +101,21 @@ def sort_chances(suggests, t):
 		})
 	sug_list.sort(key=lambda tup: tup['percent'], reverse=True)
 	return sug_list
+	
+def get_tag_lists(request):
+	#Used to get a list of lists, where each list are all tags of a post
+	#Will be used to parse neural network data on another machine
+	from cloudjangohost.settings import TAG_API_KEY
+	key = request.POST.get('key')
+	if not key == TAG_API_KEY:
+		return JsonResponse({'lists': [], 'count': -1})
+	posts = Post.objects.all()
+	p = []
+	for post in posts:
+		if post.tag_set.exists():
+			p.append(list(post.tag_set.values_list('id', flat=True).order_by('id')))
+	ret = {
+		'lists': p,
+		'count': Tag.objects.count()
+	}
+	return JsonResponse(ret)
