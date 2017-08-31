@@ -106,7 +106,7 @@ def get_tag_lists(request):
 	#Used to get a list of lists, where each list are all tags of a post
 	#Will be used to parse neural network data on another machine
 	from cloudjangohost.settings import TAG_API_KEY
-	key = request.POST.get('key')
+	key = request.GET.get('key')
 	if not key == TAG_API_KEY:
 		return JsonResponse({'lists': [], 'count': -1})
 	posts = Post.objects.all()
