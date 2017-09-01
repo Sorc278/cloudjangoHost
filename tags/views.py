@@ -1,3 +1,5 @@
+import subprocess
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
@@ -40,9 +42,22 @@ def get_suggested_tags_json(request):
 	sugs = TagSuggestion.objects.filter(post=post)
 	
 	if not sugs.exists():
-		return JsonResponse({})
+	 	return JsonResponse({})
 	
-	sug_list = sort_suggests(sugs)
+	from cloudjangohost.settings import NEURAL_PATH_BIN, NEURAL_PATH
+	
+	tags = list(post.tag_set.values_list('id', flat=True))
+	tags_to_predict = list(sugs.values_list('tag__id', flat=True))
+	
+	predicts = subprocess.check_output([NEURAL_PATH_BIN, NEURAL_PATH, tags, tags_to_predict])
+	sug_list = []
+	for predict in predicts:
+		sug_list.append({
+			'name': Tag.objects.get(id=predict[0]).name,
+			'percent': predict[1]*100
+		})
+	
+	# sug_list = sort_suggests(sugs)
 	
 	sug_dict = {k: sug_list[k] for k in range(len(sug_list))}
 	return JsonResponse(sug_dict)
