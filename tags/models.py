@@ -30,18 +30,7 @@ class Tag(models.Model):
 		indexes = [
 			models.Index(fields=['name']),
 		]
-	
-class PostTag(models.Model):
-	tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
-	post = models.ForeignKey(Post, on_delete=models.CASCADE)
-	added_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
-	date = models.DateTimeField(auto_now_add=True)
-	
-	class Meta:
-		indexes = [
-			models.Index(fields=['post', 'tag']),
-		]
-	
+		
 class TagChance(models.Model):
 	parent = models.ForeignKey(Tag, on_delete=models.CASCADE, related_name='parent')
 	child = models.ForeignKey(Tag, on_delete=models.CASCADE, related_name='child')
@@ -60,32 +49,21 @@ class TagChance(models.Model):
 		else:
 			self.parent = tag2
 			self.child = tag1
-			
+	
+class PostTag(models.Model):
+	tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+	post = models.ForeignKey(Post, on_delete=models.CASCADE)
+	added_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+	date = models.DateTimeField(auto_now_add=True)
+	
 	class Meta:
 		indexes = [
-			models.Index(fields=['parent']),
-			models.Index(fields=['child']),
+			models.Index(fields=['post', 'tag']),
 		]
-		
 		
 class TagSuggestion(models.Model):
 	post = models.ForeignKey(Post, on_delete=models.CASCADE)
 	tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
-	
-	def percent(self):
-		tag_set = self.post.tag_set.values_list('id', flat=True)
-		per1 = TagChance.objects.filter(parent__in=tag_set, child=self.tag).aggregate(percent=Sum(100 * F('child_num') / F('parent__occurences')))['percent']
-		per2 = TagChance.objects.filter(parent=self.tag, child__in=tag_set).aggregate(percent=Sum(100 * F('child_num') / F('child__occurences')))['percent']
-		per1 = per1 if not per1 is None else 0
-		per2 = per2 if not per2 is None else 0
-		return ((per1 + per2) / len(tag_set))
-
-	def percent_with_tag_set(self, tag_set):
-		per1 = TagChance.objects.filter(parent__in=tag_set, child=self.tag).aggregate(percent=Sum(100 * F('child_num') / F('parent__occurences')))['percent']
-		per2 = TagChance.objects.filter(parent=self.tag, child__in=tag_set).aggregate(percent=Sum(100 * F('child_num') / F('child__occurences')))['percent']
-		per1 = per1 if not per1 is None else 0
-		per2 = per2 if not per2 is None else 0
-		return ((per1 + per2) / len(tag_set))
 		
 	class Meta:
 		indexes = [
@@ -103,14 +81,6 @@ def add_tag_suggestions(sender, instance, created, **kwargs):
 			i.post = post
 			bulk_list.append(i)
 		TagSuggestion.objects.bulk_create(bulk_list)
-		
-		bulk_tag_chances = []
-		for tag in Tag.objects.exclude(id=instance.id):
-			i = TagChance()
-			i.soft_set_tags(instance, tag)
-			i.child_num = 0
-			bulk_tag_chances.append(i)
-		TagChance.objects.bulk_create(bulk_tag_chances)
 		
 		tags = Tag.objects.all()
 		tag_dict = {}
