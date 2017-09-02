@@ -30,25 +30,6 @@ class Tag(models.Model):
 		indexes = [
 			models.Index(fields=['name']),
 		]
-		
-class TagChance(models.Model):
-	parent = models.ForeignKey(Tag, on_delete=models.CASCADE, related_name='parent')
-	child = models.ForeignKey(Tag, on_delete=models.CASCADE, related_name='child')
-	child_num = models.IntegerField(blank=False, null=False, default=0)
-	
-	def __str__(self):
-		return self.parent.__str__()+'--'+self.child.__str__()+'  #'+str(self.child_num)
-	
-	def percent(self):
-		return int((100*self.child_num)/self.parent.occurences)
-	
-	def soft_set_tags(self, tag1, tag2):
-		if tag1.name <= tag2.name:
-			self.parent = tag1
-			self.child = tag2
-		else:
-			self.parent = tag2
-			self.child = tag1
 	
 class PostTag(models.Model):
 	tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
