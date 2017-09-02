@@ -11,7 +11,7 @@ def write_chunk_from_memory(upload, chunk):
     #TODO add exceptions
     chunkTemppath = get_temp_path(upload, 'chunk')
     
-    chunk_file = open(chunkTemppath, 'w')
+    chunk_file = open(chunkTemppath, 'wb')
     chunk_file.write(chunk)
     chunk_file.close()
     write_chunk_from_filepath(upload, chunkTemppath)
