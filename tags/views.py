@@ -49,23 +49,24 @@ def remove_suggested_tag(request):
 def get_suggested_tags_json(request):
 	post = get_object_or_404(Post, filename=request.POST.get('filename'))
 	sugs = TagSuggestion.objects.filter(post=post)
-	
+
 	if not sugs.exists():
 	 	return JsonResponse({})
-	
+
 	from cloudjangohost.settings import NEURAL_PATH_BIN, NEURAL_PATH
-	
+	from ast import literal_eval
+
 	tags = list(post.tag_set.values_list('id', flat=True))
 	tags_to_predict = list(sugs.values_list('tag__id', flat=True))
-	
-	predicts = subprocess.check_output([NEURAL_PATH_BIN, NEURAL_PATH, tags, tags_to_predict])
+
+	predicts = literal_eval(subprocess.check_output([NEURAL_PATH_BIN, NEURAL_PATH, str(tags), str(tags_to_predict)]).decode('utf-8'))
 	sug_list = []
 	for predict in predicts:
 		sug_list.append({
 			'name': Tag.objects.get(id=predict[0]).name,
 			'percent': predict[1]*100
 		})
-	
+
 	sug_dict = {k: sug_list[k] for k in range(len(sug_list))}
 	return JsonResponse(sug_dict)
 
@@ -85,7 +86,7 @@ def get_tag_lists(request):
 	p = []
 	for post in posts:
 		if post.tag_set.exists():
-			p.append(list(post.tag_set.values_list('id', flat=True).order_by('id')))
+			p.append(list(post.tag_set.values_list('id', flat=True)))
 	ret = {
 		'lists': p,
 		'count': Tag.objects.count()
