@@ -1,4 +1,4 @@
-from random import getrandbits
+import random
 
 from storage.operations import get_tempfile, get_file_size
 
@@ -26,7 +26,13 @@ def get_filename(length):
         raise ValueError('Value of length is invalid, should be a number')
     
     while True:
-        post = '%0x' % getrandbits(length * 4)
+        post = ''.join(random.choice('0123456789abcdef') for n in xrange(length))
+        #rand bits may sometimes create names of length 15 instead
+        
+        #extra safeguard
+        if not len(post) == 16:
+            continue
+        
         if not Post.objects.filter(filename=post).exists():
             break
         

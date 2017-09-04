@@ -1,0 +1,208 @@
+<script type="text/javascript">
+function upload(formData, fileIndex)
+{
+	ubar = document.getElementById("upload_bar");
+	ustatus = document.getElementById("upload_status");
+	upercent = document.getElementById("upload_percent");
+	uspeed = document.getElementById("upload_speed");
+
+	privatePost = formData.get("private");
+	board = formData.get("board");
+	title = formData.get("title");
+	
+	fileName = formData.get(fileIndex).name;
+	fileSize = formData.get(fileIndex).size;
+	totalChunks = Math.ceil(fileSize/chunkSize);
+	
+	if(totalChunks==0){
+		ustatus.innerHTML = "Please select a file";
+		return;
+	}
+	
+	ustatus.innerHTML = "Setting up";
+	identifier = setupAndGetID();
+	if(identifier == "ERR") return;
+
+	ustatus.innerHTML="Uploading";
+	uploadPart(formData, fileIndex, 0);
+}
+function uploadPart(formData, fileIndex, partNum){
+	var filePart = getPart(formData, fileIndex, partNum);
+
+	var dataPack = new FormData();
+	dataPack.append("chunkNum", partNum);
+	dataPack.append("chunk", filePart);
+	dataPack.append("uploadID", identifier);
+	dataPack.append("csrfmiddlewaretoken", window.CSRF_TOKEN);
+	dataPack.append("submit_type", "upload");
+	if(partNum+1==totalChunks){
+		dataPack.append("lastChunk", 1);
+	}
+
+	timeUpdated = (new Date()).getTime();
+	//send data package
+	$.ajax({
+		xhr: function() {
+			var xhr = new window.XMLHttpRequest();
+			xhr.upload.addEventListener("progress", function(evt) {
+				var speed = ((evt.loaded / Math.max(1, (new Date()).getTime() - timeUpdated))*1000) / (1024*1024);
+
+				var pg  = Math.ceil(((partNum+(evt.loaded/evt.total))*100) / totalChunks);
+				ubar.style.width = pg+"%";
+				upercent.innerHTML = pg+"%"
+				uspeed.innerHTML = speed.toFixed(1)+" Mbps";
+				if(pg==100){
+					ustatus.innerHTML = "Preprocessing file, please wait";
+				}
+			}, false);
+			return xhr;
+		},
+		url: "{% url 'submit:submit' %}",
+		type: 'POST',
+		data: dataPack,
+		async: true,
+		success: function (data) {
+			if(partNum+1!=totalChunks)uploadPart(formData, fileIndex, partNum+1);
+			//else window.location.replace("../tools/queue.php");
+		},
+		error: function (data){
+			ustatus.innerHTML = data.responseText;
+		},
+		cache: false,
+		processData: false,
+		contentType: false
+	});
+}
+
+function getPart(formData, fileIndex, partNum){
+	var fileSize = formData.get(fileIndex).size;
+	var totalChunks = Math.ceil(fileSize/chunkSize);
+
+	var startByte = partNum*chunkSize;
+	var endByte = Math.min(startByte+chunkSize, fileSize);
+
+	if(partNum>=totalChunks) return null;
+	return formData.get(fileIndex).slice(startByte, endByte);
+}
+
+function setupAndGetID(){
+	var dataPack = new FormData();
+	dataPack.append("filename", fileName);
+	dataPack.append("filesize", fileSize);
+	dataPack.append("chunkNum", -1);
+	dataPack.append("private", privatePost);
+	dataPack.append("board", board);
+	dataPack.append("title", title);
+	dataPack.append("csrfmiddlewaretoken", window.CSRF_TOKEN);
+	dataPack.append("submit_type", "upload");
+
+	var aj = $.ajax({
+		url: "{% url 'submit:submit' %}",
+		type: 'POST',
+		data: dataPack,
+		async: false,
+		error: function (data){
+			ustatus.innerHTML = data.responseText;
+		},
+		cache: false,
+		processData: false,
+		contentType: false
+	});
+
+	if(aj.status == 200) return aj.responseText;
+	else return "ERR";
+}
+
+	var webms, mp4s;
+
+	function queryYoutube(){
+		CSRF_TOKEN = "{{ csrf_token }}";
+		document.getElementById("youtube_types").innerHTML=`
+<div class="row center">
+	<div class="preloader-wrapper big active">
+		<div class="spinner-layer spinner-blue-only">
+			<div class="circle-clipper left">
+				<div class="circle"></div>
+			</div>
+			<div class="gap-patch">
+				<div class="circle"></div>
+			</div>
+			<div class="circle-clipper right">
+				<div class="circle"></div>
+			</div>
+		</div>
+	</div>
+</div>`;
+		$.ajax({
+			url: "{% url 'submit:query_youtube' %}",
+			type: 'POST',
+			data: {"url": document.getElementById("youtube_url").value, "csrfmiddlewaretoken": CSRF_TOKEN},
+			async: true,
+			success: function (data) {
+				document.getElementById("youtube_types").innerHTML=data;
+				return;
+				var lines = data.split('\n');
+				var output = "<label>Audio</label><br>";
+				var b=1;
+				var startTag="<label><input onclick='validateFormat(this.id)' type='radio' name='audio_type' value='";
+				var midTag="'>";
+				var endTag="</label><br>";
+				for(var I = 0;I < lines.length;I++){
+					if(b==1 && lines[I].includes("video only"))
+					{
+						output+="<label>Video</label><br>";
+						b=0;
+						startTag="<label><input onclick='validateFormat(this.id)' type='radio' name='video_type' value='";
+					}
+					if(b==1)
+					{
+						output+=startTag+parseInt(lines[I], 10)+"' id='youtubeRadio"+I+midTag+lines[I]+endTag;
+					}
+					else
+					{
+						splitLines=lines[I].split(/[ ]+/);
+						output+=startTag+splitLines[0]+";"+splitLines[1]+"' id='youtubeRadio"+I+midTag+lines[I]+endTag;
+					}
+				}
+				document.getElementById("youtube_types").innerHTML=output;
+				webms = new Array();
+				mp4s = new Array();
+				for(var I = 0;I < lines.length;I++){
+					if(document.getElementById("youtubeRadio"+I).parentElement.innerHTML.includes("webm"))
+						webms[webms.length]=document.getElementById("youtubeRadio"+I);
+					else
+						mp4s[mp4s.length]=document.getElementById("youtubeRadio"+I);
+				}
+			}
+		});
+	}
+	function validateFormat(id)
+	{
+		if(document.getElementById(id).parentElement.innerHTML.includes("webm"))
+		{
+			for(var I=0;I<mp4s.length;I++)
+			{
+				mp4s[I].parentElement.style.color="grey";
+				mp4s[I].checked = false;
+			}
+			for(var I=0;I<webms.length;I++)
+			{
+				webms[I].parentElement.style.color="black";
+			}
+		}
+		else
+		{
+			for(var I=0;I<webms.length;I++)
+			{
+				webms[I].parentElement.style.color="grey";
+				webms[I].checked = false;
+			}
+			for(var I=0;I<mp4s.length;I++)
+			{
+				mp4s[I].parentElement.style.color="black";
+			}
+		}
+	}
+
+
+</script>
