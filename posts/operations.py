@@ -26,7 +26,7 @@ def get_filename(length):
         raise ValueError('Value of length is invalid, should be a number')
     
     while True:
-        post = ''.join(random.choice('0123456789abcdef') for n in xrange(length))
+        post = ''.join(random.choice('0123456789abcdef') for n in range(length))
         #rand bits may sometimes create names of length 15 instead
         
         #extra safeguard
