@@ -18,7 +18,7 @@ def write_chunk_from_memory(upload, chunk):
     os.remove(chunkTemppath)
 
 def write_chunk_from_filepath(upload, filepath):
-    a = open(get_tempfile(upload), 'wb')
+    a = open(get_tempfile(upload), 'ab')
     b = open(filepath, 'rb')
     a.write(b.read())
     #call("cat "+filepath+" >> "+get_tempfile(upload), shell=True)
