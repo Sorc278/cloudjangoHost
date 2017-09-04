@@ -81,6 +81,8 @@ def submit_upload(request):
     
     try:
         write_chunk_from_filepath(upload, request.FILES['chunk'].temporary_file_path())
+        upload.expectedChunk += 1
+        upload.save()
     except:
         err_upload(upload, 'Failed to write chunk')
         return HttpResponse(content='Failed to write chunk', status=400)
