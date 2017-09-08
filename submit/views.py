@@ -1,3 +1,4 @@
+import logging
 
 import youtube_dl as ydl
 
@@ -5,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 
-from downloader.helpers import submit_type_is_valid, err
+from downloader.helpers import submit_type_is_valid
 from downloader.operations import submit_url, submit_upload
 
 # Create your views here.
@@ -17,7 +18,16 @@ def submit(request):
 			return err(request, 'Invalid submit type selected.')
 		
 		if 'url' == submit_type:
-			return submit_url(request)
+			try:
+				submit_url(request)
+			except Warning as w:
+				logging.warning(w, exc_info=True)
+				return render(request, 'submit/index.html', { 'err': 'Failed: '+str(w) })
+			except Exception as e:
+				logging.exception(e)
+				return render(request, 'submit/index.html', { 'err': 'Failed: internal server error occured' })
+			return redirect('downloader:queue')
+				
 		if 'upload' == submit_type:
 			return submit_upload(request)
 	

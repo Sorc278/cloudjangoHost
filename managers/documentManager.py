@@ -2,8 +2,6 @@ import os, os.path
 from PIL import Image
 from subprocess import check_output, call
 
-from storage.operations import get_tempfile, get_tempthumb
-
 document_mimes = ['application/pdf']
 document_types = ['pdf']
 document_mimes_to_ext = { 'application/pdf': 'pdf' }

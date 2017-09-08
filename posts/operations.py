@@ -1,6 +1,6 @@
 import random
 
-from storage.operations import get_tempfile, get_file_size
+from storage.operations import get_file_size
 
 from .models import Post
 
@@ -16,7 +16,7 @@ def create_post(upload):
     post.private = upload.private
     post.board = upload.board
     post.source = upload.url if upload.url else 'Uploaded by user as '+upload.filename
-    post.size = get_file_size(get_tempfile(upload))
+    post.size = get_file_size(upload.get_temp_main())
     
     post.save()
     return post

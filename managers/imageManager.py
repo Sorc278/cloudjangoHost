@@ -2,31 +2,34 @@ import os
 import os.path
 from PIL import Image
 
-from storage.operations import get_tempfile, get_tempthumb
-
 image_mimes = ['image/jpeg', 'image/png', 'image/gif']
 image_types = ['jpg', 'jpeg', 'png', 'gif']
 image_mimes_to_ext = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif' }
 maxsize = 300
 
-def process_image(upl):
-    if 'jpeg' == upl.extension:
-        oldpath = get_tempfile(upl)
-        upl.extension = 'jpg'
-        upl.save()
-        os.rename(oldpath, get_tempfile(upl))
+def process_upload(upload):
+    if 'jpeg' == upload.extension:
+        oldpath = upload.get_temp_main()
+        upload.extension = 'jpg'
+        upload.save()
+        os.rename(oldpath, upload.get_temp_main())
         
-    if not os.path.isfile(get_tempfile(upl)):
-        raise OSError('Failed to process file, resulting file is missing.')
-        
+    if not os.path.isfile(upload.get_temp_main()):
+        raise OSError('Failed to process image, resulting file is missing.')
+    
+    try:
+        create_thumb(upload.get_temp_folder(), upload.get_temp_main(), upload.get_temp_thumb())
+    except Exception as e:
+        raise e
+    
     return
 
-def create_thumb(upl):
-    im = get_thumb_in_memory(get_tempfile(upl))
-    im.save(get_tempthumb(upl), "JPEG", quality=90)
+def create_thumb(folder_path, image_path, thumb_path):
+    im = get_thumb_in_memory(image_path)
+    im.save(thumb_path, "JPEG", quality=90)
     
-    if not os.path.isfile(get_tempthumb(upl)):
-        raise OSError('Failed to process file, resulting thumbnail is missing.')
+    if not os.path.isfile(thumb_path):
+        raise OSError('Failed to process image, resulting thumbnail is missing.')
         
 def get_thumb_in_memory(path):
     im = Image.open(path)
@@ -34,10 +37,10 @@ def get_thumb_in_memory(path):
     height = float(im.size[1])
     if width>height:
         height = int(height * (maxsize / width))
-        width = 300
+        width = maxsize
     else:
         width = int(width * (maxsize / height))
-        height = 300
+        height = maxsize
     im = im.convert("RGB")
     im=im.resize((width, height), Image.ANTIALIAS)
     return im

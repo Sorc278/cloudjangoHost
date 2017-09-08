@@ -2,8 +2,6 @@ import os, os.path
 from PIL import Image
 from subprocess import check_output, call
 
-from storage.operations import get_tempfile, get_tempthumb
-
 video_mimes = ['video/mp4', 'video/webm', 'video/x-matroska']
 video_types = ['mp4', 'webm', 'mkv']
 video_mimes_to_ext = { 'video/mp4': 'mp4', 'video/webm': 'webm', 'video/x-matroska': 'mkv' }

@@ -14,18 +14,15 @@ from .helpers import board_is_valid, priority_is_valid, submit_type_is_valid
 def prepare_upload(user, filename, private, board, url, extension, title, downloadType, priority, filesize):
     try:
         upload = create_upload(user, filename, private, board, url, extension, title, downloadType, priority, filesize)
-    except:
-        raise
+    except Exception as e:
+        raise e
     try:
-        storage.prepare_for_upload(upload)
-    except:
-        cleanup_upload(upload)
+        upload.prepare()
+    except Exception as e:
+        upload.cleanup()
         upload.delete()
-        raise
+        raise e
     return upload
-    
-def cleanup_upload(upload):
-    storage.cleanup_upload(upload)
 
 # Create your functions here.
 def create_upload(user, filename, private, board, url, extension, title, downloadType, priority, filesize):
@@ -58,7 +55,7 @@ def create_upload(user, filename, private, board, url, extension, title, downloa
         raise ValueError('Value of downloadType is invalid, as it is not in types currently allowed')
     else:
         upload.downloadType = downloadType
-    upload.status = "Waiting"
+    upload.status = "Initialising"
     upload.description = ''
     upload.store = int(FILE_UPLOAD_STORE)
     if priority_is_valid(priority):

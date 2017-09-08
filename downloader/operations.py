@@ -12,33 +12,34 @@ from managers.extHelpers import get_extension_from_string, extension_valid, mime
 
 from .models import Upload
 from .helpers import board_is_valid, url_is_valid, priority_is_valid, submit_type_is_valid
-from .helpers import get_mime_from_url, get_size_from_url, get_priority, err
+from .helpers import get_mime_from_url, get_size_from_url, get_priority
 from .prep import prepare_upload
-from .tasks import process_upload, update_upload, err_upload
+from .tasks import process_upload
 
 def submit_url(request):
     if not board_is_valid(int(request.POST.get('board'))):
-        return err(request, "Board is not valid")
+        raise Warning('Board is not valid')
     if not url_is_valid(request.POST.get('url_url')):
-        return err(request, "URL is not valid")
+        raise Warning('URL is not valid')
     
     url = request.POST.get('url_url')
     try:
         mime = get_mime_from_url(url)
     except:
-        return err(request, "Could not retrieve the MIME type of file")
+        #TODO: Could this exception indicate bigger problems present, warrant more than a warning?
+        raise Warning('Could not retrieve the MIME type of file')
     if not (mime_valid(mime)):
-        return err(request, 'File type is not yet supported. MIME determined: ' + mime)
+        raise Warning('File type is not yet supported. MIME determined: ' + mime)
     
     filesize = get_size_from_url(url)
     priority = get_priority(filesize)
     private = True if request.POST.get('private') else False
     extension = extension_from_mime(mime)
     
-    prepare_upload(request.user, '',  private,  int(request.POST.get('board')),  request.POST.get('url_url'), extension, request.POST.get('title'), 'url', priority, filesize)
+    upload = prepare_upload(request.user, '',  private,  int(request.POST.get('board')),  request.POST.get('url_url'), extension, request.POST.get('title'), 'url', priority, filesize)
+    upload.waiting()
     process_upload.delay(priority)
-    
-    return render(request, 'submit/index.html', None)
+    return
     
 def submit_upload(request):
     chunkNum = request.POST.get('chunkNum')

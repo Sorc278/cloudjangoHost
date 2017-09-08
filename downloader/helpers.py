@@ -45,7 +45,3 @@ def get_size_from_url(url):
 def get_priority(size):
     priority = 'Low' if 64000000 < size else 'High' #64MB
     return priority
-    
-#errors
-def err(request, msg): 
-    return render(request, 'submit/index.html', { 'err': msg })
