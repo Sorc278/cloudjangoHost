@@ -15,7 +15,7 @@ def submit(request):
 	if request.method == "POST":
 		submit_type = request.POST.get('submit_type')
 		if not submit_type_is_valid(submit_type):
-			return err(request, 'Invalid submit type selected.')
+			return render(request, 'submit/index.html', { 'err': 'Invalid submission type selected. Are you hacking?' })
 		
 		if 'url' == submit_type:
 			try:
@@ -27,9 +27,17 @@ def submit(request):
 				logging.exception(e)
 				return render(request, 'submit/index.html', { 'err': 'Failed: internal server error occured' })
 			return redirect('downloader:queue')
-				
-		if 'upload' == submit_type:
-			return submit_upload(request)
+		elif 'upload' == submit_type:
+			#Upload is done with AJAX, so HttpResponses are returned
+			try:
+				response = submit_upload(request)
+			except Warning as w:
+				logging.warning(w, exc_info=True)
+				return HttpResponse(content='Failed: '+str(w), status=400)
+			except Exception as e:
+				logging.exception(e)
+				return HttpResponse(content='Failed: internal server error occured', status=500)
+			return HttpResponse(content=response)
 	
 	return render(request, 'submit/index.html', None)
 

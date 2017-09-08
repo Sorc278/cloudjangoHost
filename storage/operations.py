@@ -13,7 +13,7 @@ def write_chunk_from_memory(path, chunk):
         with open(path, 'ab') as outfile:
             outfile.write(chunk)
     except Exception as e:
-        raise e
+        raise
 
 def write_chunk_from_filepath(upload, filepath):
     a = open(get_tempfile(upload), 'ab')
@@ -29,15 +29,6 @@ def create_folder(path):
 def delete_folder(path):
     #TODO: check that it is media folder path
     shutil.rmtree(path)
-    
-#finalising uplods
-def move_to_storage(upload, name):
-    os.rename(get_tempfile(upload), get_post_path(upload, name))
-    if not os.path.isfile(get_post_path(upload, name)):
-        raise OSError('Failed to move file, destination file is missing.')
-    os.rename(get_tempthumb(upload), get_thumb_path(upload, name))
-    if not os.path.isfile(get_thumb_path(upload, name)):
-        raise OSError('Failed to move thumbnail, destination thumbnail is missing.')
 
 #misc path gets
 def get_store_path(store):

@@ -67,7 +67,7 @@ function uploadPart(formData, fileIndex, partNum){
 				upercent.innerHTML = pg+"%"
 				uspeed.innerHTML = speed.toFixed(1)+" Mbps";
 				if(pg==100){
-					ustatus.innerHTML = "Preprocessing file, please wait";
+					ustatus.innerHTML = "File transfered, please wait";
 				}
 			}, false);
 			return xhr;
@@ -78,7 +78,7 @@ function uploadPart(formData, fileIndex, partNum){
 		async: true,
 		success: function (data) {
 			if(partNum+1!=totalChunks)uploadPart(formData, fileIndex, partNum+1);
-			//else window.location.replace("../tools/queue.php");
+			else window.location.replace("{% url 'downloader:queue' %}");
 		},
 		error: function (data){
 			ustatus.innerHTML = data.responseText;
@@ -103,7 +103,7 @@ function getPart(formData, fileIndex, partNum){
 function setupAndGetID(){
 	var dataPack = new FormData();
 	dataPack.append("filename", fileName);
-	dataPack.append("filesize", fileSize);
+	dataPack.append("filesize", Math.ceil(fileSize/1024));
 	dataPack.append("chunkNum", -1);
 	dataPack.append("private", privatePost);
 	dataPack.append("board", board);

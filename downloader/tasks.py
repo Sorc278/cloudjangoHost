@@ -37,8 +37,17 @@ def process_upload(priority):
 			logging.exception(e)
 			upload.fatal_error('Internal server error')
 			return
-	# if 'upload' == upload.downloadType:
-	# 	post = process_upload_upload(upl)
+	if 'upload' == upload.downloadType:
+		try:
+			prepare_file_upload(upload)
+		except Warning as w:
+			logging.warning(w, exc_info=True)
+			upload.fatal_error(str(w))
+			return
+		except Exception as e:
+			logging.exception(e)
+			upload.fatal_error('Internal server error')
+			return
 	
 	try:
 		post = finalise_upload(upload)
@@ -65,13 +74,13 @@ def prepare_file_url(upload):
 			try:
 				upload.write_chunk_from_memory(chunk)
 				chunk_num += 1
-				upload.working('Downloaded '+str(min(chunk_num*chunk_size_in_kb, upload.filesize))+' out of '+str(upload.filesize)+" KB")
+				upload.downloading(min(chunk_num*chunk_size_in_kb, upload.filesize))
 			except Exception as e:
-				raise e
+				raise
 	return
 	
-def process_upload_upload(upl):
-	return finalise_upload(upl)
+def prepare_file_upload(upload):
+	return
 	
 def finalise_upload(upload):
 	if not upload.main_file_present():
@@ -82,8 +91,9 @@ def finalise_upload(upload):
 		try:
 			imageManager.process_upload(upload)
 		except Exception as e:
-			raise e
-	# elif 'video' == extType:
+			raise
+	elif 'video' == extType:
+		raise Warning("No video processing yet")
 	# 	try:
 	# 		videoManager.process_video(upl)
 	# 		videoManager.create_thumb(upl)
@@ -110,13 +120,13 @@ def finalise_upload(upload):
 	except Exception as e:
 		if post:
 			post.delete()
-		raise e
+		raise
 	try:
 		post.move_files_from(upload)
 	except Exception as e:
 		post.delete_files()
 		post.delete()
-		raise e
+		raise
 	
 	storage = upload.user.storage
 	storage.storage_used += post.size

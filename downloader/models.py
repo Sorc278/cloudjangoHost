@@ -35,19 +35,21 @@ class Upload(models.Model):
 		try:
 			s.create_folder(self.get_temp_folder())
 		except Exception as e:
-			raise e
+			raise
 
 	def cleanup(self):
 		try:
 			s.delete_folder(self.get_temp_folder())
 		except Exception as e:
-			raise e
+			raise
 			
 	def write_chunk_from_memory(self, chunk):
 		try:
 			s.write_chunk_from_memory(self.get_temp_main(), chunk)
 		except Exception as e:
-			raise e
+			raise
+		self.expectedChunk += 1
+		self.save()
 		
 	def get_temp_folder(self):
 		return s.get_temp_path_folder(self.store, self.tempname)
@@ -69,6 +71,9 @@ class Upload(models.Model):
 	
 	def working(self, description):
 		self.status_update('Working', description)
+		
+	def downloading(self, downloaded_kb):
+		self.working('Downloaded {0!s} of {1!s}'.format(self.human_size(downloaded_kb), self.human_size(self.filesize)))
 	
 	def fatal_error(self, description):
 		self.status_update('Failed', description)
@@ -78,3 +83,12 @@ class Upload(models.Model):
 		self.status = status
 		self.description = description
 		self.save()
+		
+	def human_size(self, size_in_kb):
+		size = size_in_kb
+		for x in ['KB','MB','GB','TB']:
+			if size < 1024.0:
+				return "%3.1f%s" % (size, x)
+			size /= 1024.0
+			#by Fred Cirera, slighlty modified to convert from KB
+			#https://web.archive.org/web/20111010015624/http://blogmag.net/blog/read/38/Print_human_readable_file_size

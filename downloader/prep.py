@@ -15,13 +15,13 @@ def prepare_upload(user, filename, private, board, url, extension, title, downlo
     try:
         upload = create_upload(user, filename, private, board, url, extension, title, downloadType, priority, filesize)
     except Exception as e:
-        raise e
+        raise
     try:
         upload.prepare()
     except Exception as e:
         upload.cleanup()
         upload.delete()
-        raise e
+        raise
     return upload
 
 # Create your functions here.
