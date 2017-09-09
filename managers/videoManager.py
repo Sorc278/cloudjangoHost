@@ -113,7 +113,7 @@ def get_formats_complex(stream_type, entries, path):
 		inputs={ path: None }
 	)
 	format_raw = probe.run(stdout=subprocess.PIPE)[0].decode("utf-8").rstrip().replace('\n', ',')
-	r = re.compile(r'(?<=\[STREAM\]\,).*(?=\,\[/STREAM\])', re.MULTILINE | re.DOTALL)
+	r = re.compile(r'(?<=\[STREAM\]\,).*?(?=\,\[/STREAM\])', re.MULTILINE | re.DOTALL)
 	format_ret = []
 	for matched in re.findall(r, format_raw):
 		d = dict(item.split("=") for item in matched.split(","))
