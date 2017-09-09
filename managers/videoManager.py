@@ -112,7 +112,7 @@ def get_formats_complex(stream_type, entries, path):
 		global_options='-v error -select_streams '+stream_type+' -show_entries stream='+entries,
 		inputs={ path: None }
 	)
-	format_raw = probe.run(stdout=subprocess.PIPE)[0].decode("utf-8").rstrip().replace('/n', ',')
+	format_raw = probe.run(stdout=subprocess.PIPE)[0].decode("utf-8").rstrip().replace('\n', ',')
 	r = re.compile(r'(?<=\[STREAM\]\,).*(?=\,\[/STREAM\])', re.MULTILINE | re.DOTALL)
 	format_ret = []
 	for matched in re.findall(r, format_raw):
