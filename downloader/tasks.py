@@ -95,8 +95,7 @@ def finalise_upload(upload):
 	elif 'video' == extType:
 		try:
 			videoManager.process_upload(upload)
-		except:
-			err_upload(upl, 'Failed to process file')
+		except Exception as e:
 			raise
 	# elif 'music' == extType:
 	# 	try:
