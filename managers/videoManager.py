@@ -65,7 +65,7 @@ def create_thumb(video_path, thumb_path, video_format):
 		global_options='-v error -select_streams '+video_format['index']+' -show_entries stream=width,height -of default=noprint_wrappers=1',
 		inputs={ video_path: None }
 	)
-	dim_raw = probe.run(stdout=subprocess.PIPE)[0].decode("utf-8").rstrip().replace('/n', ',')
+	dim_raw = probe.run(stdout=subprocess.PIPE)[0].decode("utf-8").rstrip().replace('\n', ',')[:-1]
 	dim = dict(item.split("=") for item in dim_raw.split(","))
 	
 	mid = '300:-1' if dim['width']>dim['height'] else '-1:300'
