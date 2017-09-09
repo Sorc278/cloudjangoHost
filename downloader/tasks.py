@@ -93,13 +93,11 @@ def finalise_upload(upload):
 		except Exception as e:
 			raise
 	elif 'video' == extType:
-		raise Warning("No video processing yet")
-	# 	try:
-	# 		videoManager.process_video(upl)
-	# 		videoManager.create_thumb(upl)
-	# 	except:
-	# 		err_upload(upl, 'Failed to process file')
-	# 		raise
+		try:
+			videoManager.process_upload(upload)
+		except:
+			err_upload(upl, 'Failed to process file')
+			raise
 	# elif 'music' == extType:
 	# 	try:
 	# 		musicManager.process_audio(upl)
