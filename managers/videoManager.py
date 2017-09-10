@@ -21,7 +21,7 @@ def process_upload(upload):
 	valid_codecs_num = 0
 	video_format = None
 	for format_item in video_formats:
-		if 'h264' == format_item['codec_name'] or 'vp9' == format_item['codec_name']:
+		if 'h264' == format_item['codec_name'] or 'vp8' == format_item['codec_name']:
 			video_format = format_item
 			valid_codecs_num += 1
 			if valid_codecs_num > 1:
@@ -31,7 +31,7 @@ def process_upload(upload):
 		for format_item in video_formats:
 			stream_str += format_item['codec_name']+','
 		stream_str = stream_str[:-1]
-		raise Warning("No supported video stream found. "+video_format+" found in video.")
+		raise Warning("No supported video stream found. "+stream_str+" found in video.")
 	
 	if not 'webm' == upload.extension:
 		#webms do not require any processing
