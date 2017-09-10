@@ -14,17 +14,14 @@ maxsize = 300
 def process_upload(upload):
 	if not os.path.isfile(upload.get_temp_main()):
 		raise OSError('Failed to process video, main file is missing.')
-	
-	if 'webm' == upload.extension:
-		return #webms do not require any processing
-	
+
 	video_formats = get_video_formats(upload.get_temp_main())
 	audio_formats = get_audio_formats(upload.get_temp_main())
 	
 	valid_codecs_num = 0
 	video_format = None
 	for format_item in video_formats:
-		if 'h264' == format_item['codec_name']:
+		if 'h264' == format_item['codec_name'] or 'vp9' == format_item['codec_name']:
 			video_format = format_item
 			valid_codecs_num += 1
 			if valid_codecs_num > 1:
@@ -36,19 +33,22 @@ def process_upload(upload):
 		stream_str = stream_str[:-1]
 		raise Warning("No supported video stream found. "+video_format+" found in video.")
 	
-	if 'h264' == video_format['codec_name']:
-		if 'mp4' == upload.extension:
-			if not all_audio_in_list(audio_formats, ['aac']):
-				toMP4VideoCopyAudioConvert(upload, video_format, audio_formats)
-		elif 'mkv' == upload.extension:
-			if all_audio_in_list(audio_formats, []):
-				toMP4VideoCopy(upload, video_format)
-			elif all_audio_in_list(audio_formats, ['aac']):
-				toMP4VideoCopyAudioCopy(upload, video_format, audio_formats)
+	if not 'webm' == upload.extension:
+		#webms do not require any processing
+		if 'h264' == video_format['codec_name']:
+			if 'mp4' == upload.extension:
+				if not all_audio_in_list(audio_formats, ['aac']):
+					toMP4VideoCopyAudioConvert(upload, video_format, audio_formats)
+			elif 'mkv' == upload.extension:
+				if all_audio_in_list(audio_formats, []):
+					toMP4VideoCopy(upload, video_format)
+				elif all_audio_in_list(audio_formats, ['aac']):
+					toMP4VideoCopyAudioCopy(upload, video_format, audio_formats)
+				else:
+					toMP4VideoCopyAudioConvert(upload, video_format, audio_formats)
 			else:
-				toMP4VideoCopyAudioConvert(upload, video_format, audio_formats)
-		else:
-			raise Warning("Video container of "+upload.extension+" is not yet supported")
+				raise Warning("Video container of "+upload.extension+" is not yet supported")
+	
 	if not os.path.isfile(upload.get_temp_main()):
 		raise OSError('Failed to process video, resulting file is missing.')
         
