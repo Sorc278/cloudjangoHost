@@ -94,11 +94,6 @@ def prepare_file_url(upload):
 def prepare_file_upload(upload):
 	return
 
-def youtube_dl_hook(d):
-    if d['status'] == 'downloading':
-		t_bytes = 0 if d['total_bytes'] is None else d['total_bytes']
-		# upload.downloading_manual_bytes(d['downloaded_bytes'], t_bytes)
-
 def prepare_file_youtube(upload):
 	upload.working('Downloading')
 	options = upload.get_options()
