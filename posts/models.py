@@ -2,9 +2,9 @@ from __future__ import unicode_literals
 import shutil
 import os, os.path, sys
 if sys.version_info[0] < 3:
-	from cStringIO import StringIO
+	from cStringIO import StringIO as pilIO
 else:
-	from io import StringIO
+	from io import BytesIO as pilIO
 from PIL import Image
 
 from django.db import models
@@ -91,7 +91,7 @@ class Post(models.Model):
 		return get_extension_type(self.extension)
 		
 	def thumb_from_image(self, imageData):
-		im = imageManager.get_thumb_in_memory_from_memory(Image.open(StringIO(imageData)))
+		im = imageManager.get_thumb_in_memory_from_memory(Image.open(pilIO(imageData)))#pilIO is imported ByteIO or SytingIO
 		im.save(self.get_post_thumb(), "JPEG", quality=90)
 		
 class Extra(models.Model):
