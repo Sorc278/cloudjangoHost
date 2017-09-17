@@ -7,12 +7,13 @@ music_types = ['mp3', 'flac']
 music_mimes_to_ext = { 'audio/mpeg': 'mp3', 'audio/flac': 'flac' }
 maxsize = 300
 
-def process_audio(upl):
-	if not os.path.isfile(get_tempfile(upl)):
-		raise OSError('Failed to process file, resulting file is missing.')
-		
-	if 'mp3' == upl.extension or 'flac' == upl.extension:
+def process_upload(upload):
+	if not os.path.isfile(upload.get_temp_main()):
+		raise OSError('Failed to process audio, main file is missing.')
+	if 'mp3' == upload.extension or 'flac' == upload.extension:
 		return #mp3, flac file do not require any processing
+	
+	return
 
 def create_thumb(upl):
 	#TODO: if it has embeded picture, use it as thumb

@@ -135,13 +135,11 @@ def finalise_upload(upload):
 			videoManager.process_upload(upload)
 		except Exception as e:
 			raise
-	# elif 'music' == extType:
-	# 	try:
-	# 		musicManager.process_audio(upl)
-	# 		musicManager.create_thumb(upl)
-	# 	except:
-	# 		err_upload(upl, 'Failed to process file')
-	# 		raise
+	elif 'music' == extType:
+		try:
+			musicManager.process_upload(upload)
+		except Exception as e:
+			raise
 	# elif 'document' == extType:
 	# 	try:
 	# 		documentManager.process_document(upl)

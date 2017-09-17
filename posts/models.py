@@ -4,6 +4,7 @@ import os, os.path
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.urls import reverse
 
 from cloudjangohost.settings import MEDIA_ROOT, MEDIA_URL, SITE_BASE
 
@@ -37,7 +38,13 @@ class Post(models.Model):
 		return '{0!s}{1!s}'.format(SITE_BASE, self.get_post_main().replace(MEDIA_ROOT, MEDIA_URL))
 
 	def url_thumb(self):
-		return '{0!s}{1!s}'.format(SITE_BASE, self.get_post_thumb().replace(MEDIA_ROOT, MEDIA_URL))
+		if os.path.isfile(self.get_post_thumb()):
+			return '{0!s}{1!s}'.format(SITE_BASE, self.get_post_thumb().replace(MEDIA_ROOT, MEDIA_URL))
+		else:
+			return '{0!s}static/{1!s}.png'.format(SITE_BASE, self.extension)
+			
+	def url_post_page(self):
+		return reverse('posts:post', kwargs={'board': self.board, 'filename': self.filename})
 		
 	def delete_files(self):
 		if os.path.isfile(self.get_post_main()):
@@ -57,13 +64,15 @@ class Post(models.Model):
 				raise OSError('Could not move main file from upload to post location')
 		else:
 			raise OSError('Main file was not found')
-			
+		
 		if os.path.isfile(upload.get_temp_thumb()):
 			os.rename(upload.get_temp_thumb(), self.get_post_thumb())
 			if not os.path.isfile(self.get_post_thumb()):
 				raise OSError('Could not move thumb from upload to post location')
 		else:
-			raise OSError('Thumb was not found')
+			extType = get_extension_type(upload.extension)
+			if not 'music' == extType:
+				raise OSError('Thumb was not found')
 		
 	def human_size(self):
 		for x in ['KB','MB','GB','TB']:

@@ -34,7 +34,8 @@ def show_posts(request, board, page):
     posts = get_posts(tags, options)
     paginator = Paginator(posts, 88)
     #TODO: add exceptions
-    posts_c = contextify(paginator.page(page).object_list, board)
+    #posts_c = contextify(paginator.page(page).object_list, board)
+    posts_c = paginator.page(page).object_list
     
     cont = {
         'board': board,
@@ -102,6 +103,6 @@ def contextify(post_objs, board):
     for post in post_objs:
         ret.append({
             'url_thumb': post.url_thumb(),
-            'url_post': reverse('posts:post', kwargs={'board': board, 'filename':post.filename})
+            'url_post': post.url_post_page(),
         })
     return ret
