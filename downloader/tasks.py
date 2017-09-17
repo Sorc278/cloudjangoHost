@@ -1,6 +1,7 @@
 import requests
+import urllib
 import logging
-
+import youtube_dl as ydl
 from celery import shared_task
 
 from managers.extHelpers import get_extension_type
@@ -10,7 +11,7 @@ import managers.musicManager as musicManager
 import managers.documentManager as documentManager
 from posts.operations import create_post
 
-from .helpers import send_get
+from .helpers import send_get, get_youtube_meta
 
 
 from .models import Upload
@@ -40,6 +41,17 @@ def process_upload(priority):
 	if 'upload' == upload.downloadType:
 		try:
 			prepare_file_upload(upload)
+		except Warning as w:
+			logging.warning(w, exc_info=True)
+			upload.fatal_error(str(w))
+			return
+		except Exception as e:
+			logging.exception(e)
+			upload.fatal_error('Internal server error')
+			return
+	if 'youtube' == upload.downloadType:
+		try:
+			prepare_file_youtube(upload)
 		except Warning as w:
 			logging.warning(w, exc_info=True)
 			upload.fatal_error(str(w))
@@ -80,6 +92,34 @@ def prepare_file_url(upload):
 	return
 	
 def prepare_file_upload(upload):
+	return
+
+def youtube_dl_hook(d):
+    if d['status'] == 'downloading':
+		t_bytes = 0 if d['total_bytes'] is None else d['total_bytes']
+		# upload.downloading_manual_bytes(d['downloaded_bytes'], t_bytes)
+
+def prepare_file_youtube(upload):
+	upload.working('Downloading')
+	options = upload.get_options()
+	ydl_opts = {
+		'format': '{0!s}+{1!s}'.format(options['videoID'], options['audioID']),
+		'outtmpl': upload.get_temp_main(),
+		'progress_hooks': [],
+		'simulate': True,
+	}
+	try:
+		with ydl.YoutubeDL(ydl_opts) as y:
+			y.download([upload.url])
+	except Exception as e:
+		raise
+	
+	meta = get_youtube_meta(upload.url)
+	if not upload.title:
+		upload.title = meta['title']
+		upload.save()
+	#TODO: add exception checks
+	urllib.urlretrieve(meta['thumb_url'], upload.get_temp_thumb())
 	return
 	
 def finalise_upload(upload):

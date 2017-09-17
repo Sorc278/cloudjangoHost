@@ -15,11 +15,10 @@ def write_chunk_from_memory(path, chunk):
     except Exception as e:
         raise
 
-def write_chunk_from_filepath(upload, filepath):
-    a = open(get_tempfile(upload), 'ab')
-    b = open(filepath, 'rb')
-    a.write(b.read())
-    #call("cat "+filepath+" >> "+get_tempfile(upload), shell=True)
+# def write_chunk_from_filepath(upload, filepath):
+#     a = open(get_tempfile(upload), 'ab')
+#     b = open(filepath, 'rb')
+#     a.write(b.read())
 
 # Dir creation/deletion
 def create_folder(path):

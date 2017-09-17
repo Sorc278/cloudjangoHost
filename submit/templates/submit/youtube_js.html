@@ -23,70 +23,98 @@
 			data: {"url": document.getElementById("youtube_url").value, "csrfmiddlewaretoken": CSRF_TOKEN},
 			async: true,
 			success: function (data) {
-				document.getElementById("youtube_types").innerHTML=data;
-				return;
-				var lines = data.split('\n');
+				document.getElementById("youtube_types").innerHTML=`
+<h5>Video List</h5>
+<table>
+	<thead>
+		<tr>
+			<th>Select</th>
+			<th>Extension</th>
+			<th>Resolution</th>
+			<th>FPS</th>
+			<th>Bitrate</th>
+			<th>Size</th>
+			<th>Codec</th>
+		</tr>
+	</thead>
+	<tbody id='video_list'>
+	</tbody>
+</table>
+<h5>Audio List</h5>
+<table>
+	<thead>
+		<tr>
+			<th>Select</th>
+			<th>Extension</th>
+			<th>Bitrate</th>
+			<th>Sampling</th>
+			<th>Size</th>
+			<th>Codec</th>
+		</tr>
+	</thead>
+	<tbody id='audio_list'>
+	</tbody>
+</table>`;
 				var output = "<label>Audio</label><br>";
-				var b=1;
-				var startTag="<label><input onclick='validateFormat(this.id)' type='radio' name='audio_type' value='";
-				var midTag="'>";
-				var endTag="</label><br>";
-				for(var I = 0;I < lines.length;I++){
-					if(b==1 && lines[I].includes("video only"))
-					{
-						output+="<label>Video</label><br>";
-						b=0;
-						startTag="<label><input onclick='validateFormat(this.id)' type='radio' name='video_type' value='";
-					}
-					if(b==1)
-					{
-						output+=startTag+parseInt(lines[I], 10)+"' id='youtubeRadio"+I+midTag+lines[I]+endTag;
-					}
-					else
-					{
-						splitLines=lines[I].split(/[ ]+/);
-						output+=startTag+splitLines[0]+";"+splitLines[1]+"' id='youtubeRadio"+I+midTag+lines[I]+endTag;
-					}
+				var audio_list = document.getElementById("audio_list");
+				var vid_str = '';
+				for(var id in data['video']){
+					item = data['video'][id]
+					vid_str +=`
+<tr class="`+item['ext']+`">
+	<td>
+		<p>
+			<input name="video" type="radio" id="youtube_radio`+item['format_id']+`" value="`+item['format_id']+`"/>
+			<label onclick='validateFormat("`+item['ext']+`")' for="youtube_radio`+item['format_id']+`"></label>
+		</p>
+	</td>
+	<td>`+item['ext']+`</td>
+	<td>`+item['resolution']+`</td>
+	<td>`+item['fps']+`</td>
+	<td>`+item['bitrate']+`</td>
+	<td>`+item['filesize']+`</td>
+	<td>`+item['codec']+`</td>
+</tr>`;
 				}
-				document.getElementById("youtube_types").innerHTML=output;
-				webms = new Array();
-				mp4s = new Array();
-				for(var I = 0;I < lines.length;I++){
-					if(document.getElementById("youtubeRadio"+I).parentElement.innerHTML.includes("webm"))
-						webms[webms.length]=document.getElementById("youtubeRadio"+I);
-					else
-						mp4s[mp4s.length]=document.getElementById("youtubeRadio"+I);
+				document.getElementById("video_list").innerHTML = vid_str;
+				var aud_str = '';
+				for(var id in data['audio']){
+					item = data['audio'][id]
+					aud_str +=`
+<tr class="`+item['ext']+`">
+	<td>
+		<p>
+			<input name="audio" type="radio" id="youtube_radio`+item['format_id']+`" value="`+item['format_id']+`"/>
+			<label onclick='validateFormat("`+item['ext']+`")' for="youtube_radio`+item['format_id']+`"></label>
+		</p>
+	</td>
+	<td>`+item['ext']+`</td>
+	<td>`+item['bitrate']+`</td>
+	<td>`+item['sampling']+`</td>
+	<td>`+item['filesize']+`</td>
+	<td>`+item['codec']+`</td>
+</tr>`;
 				}
+				document.getElementById("audio_list").innerHTML = aud_str;
 			}
 		});
 	}
-	function validateFormat(id)
+	function validateFormat(className)
 	{
-		if(document.getElementById(id).parentElement.innerHTML.includes("webm"))
-		{
-			for(var I=0;I<mp4s.length;I++)
-			{
-				mp4s[I].parentElement.style.color="grey";
-				mp4s[I].checked = false;
-			}
-			for(var I=0;I<webms.length;I++)
-			{
-				webms[I].parentElement.style.color="black";
-			}
+		if(className == "webm"){
+			var dark = document.getElementsByClassName("webm");
+			var grey = document.querySelectorAll('.mp4,.m4a');
 		}
-		else
-		{
-			for(var I=0;I<webms.length;I++)
-			{
-				webms[I].parentElement.style.color="grey";
-				webms[I].checked = false;
-			}
-			for(var I=0;I<mp4s.length;I++)
-			{
-				mp4s[I].parentElement.style.color="black";
-			}
+		else{
+			var grey = document.getElementsByClassName("webm");
+			var dark = document.querySelectorAll('.mp4,.m4a');
+		}
+		for(var i=0, il = dark.length; i<il; i++){
+			dark[i].style.color = "";
+		}
+		for(var i=0, il = grey.length; i<il; i++){
+			grey[i].style.color = "LightGray";
+			grey[i].childNodes[1].childNodes[1].childNodes[1].checked = false;
 		}
 	}
-
-
 </script>

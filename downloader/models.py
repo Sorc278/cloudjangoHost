@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 import os.path
+from ast import literal_eval
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -27,9 +28,17 @@ class Upload(models.Model):
 	description = models.TextField(blank=True, null=False)
 	priority = models.CharField(blank=False, null=False, max_length=16)
 	filesize = models.PositiveIntegerField(blank=False, null=False)
+	options = models.CharField(blank=True, null=True, max_length=1024)
 	
 	def __str__(self):
 		return '{0!s} / {1!s} / {2!s} --- {3!s} --- {4!s}'.format(self.activeTime, self.priority, self.status, self.downloadType, self.url)
+		
+	def store_options(self, dict):
+		self.options = repr(dict)
+		self.save()
+		
+	def get_options(self):
+		return literal_eval(self.options)
 		
 	def prepare(self):
 		try:
@@ -74,6 +83,9 @@ class Upload(models.Model):
 		
 	def downloading(self, downloaded_kb):
 		self.working('Downloaded {0!s} of {1!s}'.format(self.human_size(downloaded_kb), self.human_size(self.filesize)))
+		
+	def downloading_manual_bytes(self, downloaded_b, total_b):
+		self.working('Downloaded {0!s} of {1!s}'.format(self.human_size_bytes(downloaded_b), self.human_size_bytes(total_b)))
 	
 	def fatal_error(self, description):
 		self.status_update('Failed', description)
@@ -87,6 +99,15 @@ class Upload(models.Model):
 	def human_size(self, size_in_kb):
 		size = size_in_kb
 		for x in ['KB','MB','GB','TB']:
+			if size < 1024.0:
+				return "%3.1f%s" % (size, x)
+			size /= 1024.0
+			#by Fred Cirera, slighlty modified to convert from KB
+			#https://web.archive.org/web/20111010015624/http://blogmag.net/blog/read/38/Print_human_readable_file_size
+			
+	def human_size_bytes(self, size_in_b):
+		size = size_in_b
+		for x in ['B','KB','MB','GB','TB']:
 			if size < 1024.0:
 				return "%3.1f%s" % (size, x)
 			size /= 1024.0

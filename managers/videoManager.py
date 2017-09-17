@@ -21,7 +21,7 @@ def process_upload(upload):
 	valid_codecs_num = 0
 	video_format = None
 	for format_item in video_formats:
-		if 'h264' == format_item['codec_name'] or 'vp8' == format_item['codec_name']:
+		if 'h264' == format_item['codec_name'] or 'vp8' == format_item['codec_name'] or 'vp9' == format_item['codec_name']:
 			video_format = format_item
 			valid_codecs_num += 1
 			if valid_codecs_num > 1:
@@ -51,11 +51,12 @@ def process_upload(upload):
 	
 	if not os.path.isfile(upload.get_temp_main()):
 		raise OSError('Failed to process video, resulting file is missing.')
-        
-	try:
-		create_thumb(upload.get_temp_main(), upload.get_temp_thumb(), video_format)
-	except Exception as e:
-		raise
+	
+	if not upload.downloadType == 'youtube':
+		try:
+			create_thumb(upload.get_temp_main(), upload.get_temp_thumb(), video_format)
+		except Exception as e:
+			raise
 	
 	return
 

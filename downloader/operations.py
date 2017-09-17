@@ -1,18 +1,18 @@
 from random import getrandbits
 
 from celery import shared_task#temp test
+import youtube_dl as ydl
 
 from django.utils import timezone
 from django.shortcuts import render
 from django.http import HttpResponse
 from cloudjangohost.settings import FILE_UPLOAD_STORE
 
-from storage.operations import write_chunk_from_filepath
 from managers.extHelpers import get_extension_from_string, extension_valid, mime_valid, extension_from_mime
 
 from .models import Upload
 from .helpers import board_is_valid, url_is_valid, priority_is_valid, submit_type_is_valid
-from .helpers import get_mime_from_url, get_size_from_url, get_priority
+from .helpers import get_mime_from_url, get_size_from_url, get_priority, get_youtube_format
 from .prep import prepare_upload
 from .tasks import process_upload
 
@@ -91,3 +91,30 @@ def submit_upload(request):
 	upload.waiting()
 	process_upload.delay(upload.priority)
 	return 'Done'
+	
+def submit_youtube(request):
+	if not board_is_valid(int(request.POST.get('board'))):
+		raise Warning('Board is not valid')
+	if not url_is_valid(request.POST.get('youtube_url')):
+		raise Warning('URL is not valid')
+	
+	videoID = request.POST.get('video')
+	audioID = request.POST.get('audio')
+	if (not videoID) or (not audioID):
+		raise Warning('Please select audio/video formats')
+	
+	url = request.POST.get('youtube_url')
+	ret = get_youtube_format({'video': videoID, 'audio': audioID}, url)
+	if not ret:
+		raise Warning('Selected audio/video format is not valid')
+	
+	filesize = 0
+	priority = get_priority(filesize)
+	private = True if request.POST.get('private') else False
+	extension = ret
+	
+	upload = prepare_upload(request.user, '',  private,  int(request.POST.get('board')),  url, extension, request.POST.get('title'), 'youtube', priority, filesize)
+	upload.store_options({'videoID': videoID, 'audioID': audioID})
+	upload.waiting()
+	process_upload.delay(priority)
+	return
