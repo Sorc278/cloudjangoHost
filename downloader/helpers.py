@@ -105,7 +105,7 @@ def get_youtube_formats(url):
 				'ext': item['ext'],
 				'format_id': item['format_id'],
 			}
-			item_dict['filesize'] = human_size(item['filesize']) if 'filesize' in item else 'Unknown'
+			item_dict['filesize'] = human_size(item['filesize']) if 'filesize' in item and not item['filesize'] is None else 'Unknown'
 			if not item['vcodec']=='none':
 				item_dict['fps'] = item['fps'] if 'fps' in item else 'Unknown'
 				item_dict['codec'] = item['vcodec'] if 'vcodec' in item else 'Unknown'
