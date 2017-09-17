@@ -108,7 +108,7 @@
 	    	{% if ext == "image" %}
 				<img id="content" class="responsive-img" src="{{ post.url_post }}"></img>
 			{% elif ext == "music" %}
-				<img id='content' class='responsive-img' src='thumbnail'/>
+				<img id='content' class='responsive-img' src='{{ post.url_thumb }}'/>
 				<audio id='content' class='responsive-img' src='{{ post.url_post }}' autoplay='' loop='' controls='true' style='width:90%'></audio>
 			{% elif ext == "video" %}
 				<video id="content" class="video-js" style="position: relative !important; width: 100% !important;" controls loop preload="auto" data-setup="{}">
