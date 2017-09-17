@@ -1,6 +1,8 @@
 from __future__ import unicode_literals
 import shutil
 import os, os.path
+from cStringIO import StringIO
+from PIL import Image
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -85,9 +87,9 @@ class Post(models.Model):
 	def extension_type(self):
 		return get_extension_type(self.extension)
 		
-	def thumb_from_image(self, path):
-		im = imageManager.get_thumb_in_memory(path)
-		im.save(get_thumb_path_by_post(self), "JPEG", quality=90)
+	def thumb_from_image(self, imageData):
+		im = imageManager.get_thumb_in_memory_from_memory(Image.open(StringIO(imageData)))
+		im.save(self.get_post_thumb(), "JPEG", quality=90)
 		
 class Extra(models.Model):
 	post = models.ForeignKey(Post, on_delete=models.CASCADE)

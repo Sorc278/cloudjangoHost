@@ -22,7 +22,7 @@ def submit_extra(request, board, filename):
 	post = get_object_or_404(Post, filename=filename)
 	extra_type = request.POST.get('extra_type')
 	if 'thumb' == extra_type:
-		post.thumb_from_image(request.FILES['file'].temporary_file_path())
+		post.thumb_from_image(request.FILES['file'].read())
 	elif 'subtitles' == extra_type:
 		ext = get_extension_from_string(request.FILES['file'].name)
 		if 'ass' == ext:

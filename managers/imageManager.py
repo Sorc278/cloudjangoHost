@@ -33,6 +33,10 @@ def create_thumb(image_path, thumb_path):
 		
 def get_thumb_in_memory(path):
 	im = Image.open(path)
+	get_thumb_in_memory_from_memory(im)
+	return im
+	
+def get_thumb_in_memory_from_memory(im):
 	width = float(im.size[0])
 	height = float(im.size[1])
 	if width>height:
