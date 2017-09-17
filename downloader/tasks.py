@@ -102,10 +102,19 @@ def prepare_file_youtube(upload):
 	upload.working('Downloading')
 	options = upload.get_options()
 	ydl_opts = {
-		'format': '{0!s}+{1!s}'.format(options['videoID'], options['audioID']),
 		'outtmpl': upload.get_temp_main(),
 		'progress_hooks': [],
 	}
+	if options:
+		ydl_opts['format'] = '{0!s}+{1!s}'.format(options['videoID'], options['audioID'])
+	else:
+		ydl_opts['format'] = 'bestaudio/best'
+		ydl_opts['postprocessors'] = [{
+			'key': 'FFmpegExtractAudio',
+			'preferredcodec': 'm4a',
+			'preferredquality': '160',
+		}]
+	
 	try:
 		with ydl.YoutubeDL(ydl_opts) as y:
 			y.download([upload.url])
@@ -117,7 +126,8 @@ def prepare_file_youtube(upload):
 		upload.title = meta['title']
 		upload.save()
 	#TODO: add exception checks
-	urlretrieve(meta['thumb_url'], upload.get_temp_thumb())
+	if options:
+		urlretrieve(meta['thumb_url'], upload.get_temp_thumb())
 	return
 	
 def finalise_upload(upload):

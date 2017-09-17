@@ -34,7 +34,6 @@ def show_posts(request, board, page):
     posts = get_posts(tags, options)
     paginator = Paginator(posts, 88)
     #TODO: add exceptions
-    #posts_c = contextify(paginator.page(page).object_list, board)
     posts_c = paginator.page(page).object_list
     
     cont = {
@@ -97,12 +96,3 @@ def get_excluded_ids(tag_list, options):
     
 def get_filtered_query(query, options):
     return query.filter(board__lte=options['board'])
-    
-def contextify(post_objs, board):
-    ret = []
-    for post in post_objs:
-        ret.append({
-            'url_thumb': post.url_thumb(),
-            'url_post': post.url_post_page(),
-        })
-    return ret

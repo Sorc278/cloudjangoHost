@@ -97,24 +97,28 @@ def submit_youtube(request):
 		raise Warning('Board is not valid')
 	if not url_is_valid(request.POST.get('youtube_url')):
 		raise Warning('URL is not valid')
-	
-	videoID = request.POST.get('video')
-	audioID = request.POST.get('audio')
-	if (not videoID) or (not audioID):
-		raise Warning('Please select audio/video formats')
-	
+	youtube_type = request.POST.get('youtube_type')
 	url = request.POST.get('youtube_url')
-	ret = get_youtube_format({'video': videoID, 'audio': audioID}, url)
-	if not ret:
-		raise Warning('Selected audio/video format is not valid')
+	if youtube_type == 'video':
+		videoID = request.POST.get('video')
+		audioID = request.POST.get('audio')
+		if (not videoID) or (not audioID):
+			raise Warning('Please select audio/video formats')
+		ret = get_youtube_format({'video': videoID, 'audio': audioID}, url)
+		if not ret:
+			raise Warning('Selected audio/video format is not valid')
+		extension = ret
+		options = {'videoID': videoID, 'audioID': audioID}
+	else:
+		extension = 'm4a'
+		options = {}
 	
 	filesize = 0
 	priority = get_priority(filesize)
 	private = True if request.POST.get('private') else False
-	extension = ret
 	
 	upload = prepare_upload(request.user, '',  private,  int(request.POST.get('board')),  url, extension, request.POST.get('title'), 'youtube', priority, filesize)
-	upload.store_options({'videoID': videoID, 'audioID': audioID})
+	upload.store_options(options)
 	upload.waiting()
 	process_upload.delay(priority)
 	return
