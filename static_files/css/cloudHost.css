@@ -52,6 +52,7 @@ For page listing posts
 */
 .thumb
 {
+	position:relative;
 	padding: 0 !important;
 }
 
