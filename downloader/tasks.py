@@ -1,5 +1,9 @@
 import requests
-import urllib
+import sys
+if sys.version_info[0] < 3:
+	from urllib import urlretrieve
+else:
+	from urllib.request import urlretrieve
 import logging
 import youtube_dl as ydl
 from celery import shared_task
@@ -114,7 +118,7 @@ def prepare_file_youtube(upload):
 		upload.title = meta['title']
 		upload.save()
 	#TODO: add exception checks
-	urllib.urlretrieve(meta['thumb_url'], upload.get_temp_thumb())
+	urlretrieve(meta['thumb_url'], upload.get_temp_thumb())
 	return
 	
 def finalise_upload(upload):

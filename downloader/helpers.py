@@ -94,7 +94,6 @@ def get_youtube_formats(url):
 	video_list = []
 	with ydl.YoutubeDL(options) as r:
 		info = r.extract_info(url, download=False)
-		print(info.get('title'))
 		for item in info['formats']:
 			if (not item['acodec']=='none') and (not item['vcodec']=='none'):
 				continue
