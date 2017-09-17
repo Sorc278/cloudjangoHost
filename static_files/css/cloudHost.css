@@ -50,6 +50,21 @@ Custom Materialize tab colours
 /*
 For page listing posts
 */
+.thumbtitle{
+	position: absolute;
+	top: 120px;
+	left: 25px;
+	right: 25px;
+	width: 180px;
+	word-wrap: break-word;
+  color: black;
+  text-shadow:
+  -1px -1px 0 white,
+  1px -1px 0 white,
+  -1px 1px 0 white,
+  1px 1px 0 white;  
+}
+
 .thumb
 {
 	position:relative;
