@@ -105,7 +105,6 @@ def prepare_file_youtube(upload):
 		'format': '{0!s}+{1!s}'.format(options['videoID'], options['audioID']),
 		'outtmpl': upload.get_temp_main(),
 		'progress_hooks': [],
-		'simulate': True,
 	}
 	try:
 		with ydl.YoutubeDL(ydl_opts) as y:
