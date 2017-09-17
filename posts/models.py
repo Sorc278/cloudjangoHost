@@ -1,7 +1,10 @@
 from __future__ import unicode_literals
 import shutil
-import os, os.path
-from cStringIO import StringIO
+import os, os.path, sys
+if sys.version_info[0] < 3:
+	from cStringIO import StringIO
+else:
+	from io import StringIO
 from PIL import Image
 
 from django.db import models
