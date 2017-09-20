@@ -1,0 +1,1 @@
+flac, m4a, mp3 icons from https://madushanworks.deviantart.com/art/Organic-Audio-Icons-523664171
