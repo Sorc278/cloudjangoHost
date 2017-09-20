@@ -1,5 +1,5 @@
 import os, os.path
-import imageManager
+import managers.imageManager as imageManager
 from subprocess import check_output, call
 
 other_mimes = []
