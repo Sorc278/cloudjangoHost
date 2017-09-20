@@ -4,11 +4,11 @@ from .imageManager import image_types, image_mimes, image_mimes_to_ext
 from .videoManager import video_types, video_mimes, video_mimes_to_ext
 from .musicManager import music_types, music_mimes, music_mimes_to_ext
 from .documentManager import document_types, document_mimes, document_mimes_to_ext
-from .otherManager import other_types, other_mimes, other_mimes_to_ext
+import otherManager
 
-types = image_types + video_types + music_types + document_types + other_types
-mimes = image_mimes + video_mimes + music_mimes + document_mimes + other_mimes
-mime_ext = dict(dict(dict(dict(image_mimes_to_ext, **video_mimes_to_ext), **music_mimes_to_ext), **document_mimes_to_ext), **other_mimes_to_ext)
+types = image_types + video_types + music_types + document_types + otherManager.other_types
+mimes = image_mimes + video_mimes + music_mimes + document_mimes + otherManager.other_mimes
+mime_ext = dict(dict(dict(dict(image_mimes_to_ext, **video_mimes_to_ext), **music_mimes_to_ext), **document_mimes_to_ext), **otherManager.other_mimes_to_ext)
 
 priorities = ['Low', 'High']
 
