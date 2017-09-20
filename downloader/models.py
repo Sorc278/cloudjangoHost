@@ -28,7 +28,7 @@ class Upload(models.Model):
 	description = models.TextField(blank=True, null=False)
 	priority = models.CharField(blank=False, null=False, max_length=16)
 	filesize = models.PositiveIntegerField(blank=False, null=False)
-	options = models.CharField(blank=True, null=True, max_length=1024)
+	options = models.CharField(blank=True, null=True, max_length=32768)
 	
 	def __str__(self):
 		return '{0!s} / {1!s} / {2!s} --- {3!s} --- {4!s}'.format(self.activeTime, self.priority, self.status, self.downloadType, self.url)
@@ -70,7 +70,28 @@ class Upload(models.Model):
 		return '{0!s}{1!s}'.format(self.get_temp_folder(), 'thumb.jpg')
 		
 	def main_file_present(self):
-		return os.path.isfile(self.get_temp_main())
+		if self.extension == 'album':
+			images = self.get_options()['image_items']
+			page = 0
+			for image in images:
+				if not os.path.isfile('{0!s}{1!s}.{2!s}'.format(self.get_temp_folder(), page, image['ext'])):
+					return False
+				page += 1
+			return True
+		else:
+			return os.path.isfile(self.get_temp_main())
+			
+	def get_size(self):
+		if self.extension == 'album':
+			images = self.get_options()['image_items']
+			page = 0
+			size = 0
+			for image in images:
+				size += s.get_file_size('{0!s}{1!s}.{2!s}'.format(self.get_temp_folder(), page, image['ext']))
+				page += 1
+			return size
+		else:
+			return s.get_file_size(self.get_temp_main())
 	
 	def complete(self):
 		self.status_update('Complete', '')

@@ -9,10 +9,11 @@ from django.http import HttpResponse
 from cloudjangohost.settings import FILE_UPLOAD_STORE
 
 from managers.extHelpers import get_extension_from_string, extension_valid, mime_valid, extension_from_mime
+from managers.extHelpers import get_extension_type
 
 from .models import Upload
 from .helpers import board_is_valid, url_is_valid, priority_is_valid, submit_type_is_valid
-from .helpers import get_mime_from_url, get_size_from_url, get_priority, get_youtube_format
+from .helpers import get_mime_from_url, get_size_from_url, get_priority, get_youtube_format, get_imgur_images, get_imgur_title
 from .prep import prepare_upload
 from .tasks import process_upload
 
@@ -36,7 +37,7 @@ def submit_url(request):
 	private = True if request.POST.get('private') else False
 	extension = extension_from_mime(mime)
 	
-	upload = prepare_upload(request.user, '',  private,  int(request.POST.get('board')),  request.POST.get('url_url'), extension, request.POST.get('title'), 'url', priority, filesize)
+	upload = prepare_upload(request.user, '',  private,  int(request.POST.get('board')),  url, extension, request.POST.get('title'), 'url', priority, filesize)
 	upload.waiting()
 	process_upload.delay(priority)
 	return
@@ -121,4 +122,50 @@ def submit_youtube(request):
 	upload.store_options(options)
 	upload.waiting()
 	process_upload.delay(priority)
+	return
+
+def submit_imgur(request):
+	if not board_is_valid(int(request.POST.get('board'))):
+		raise Warning('Board is not valid')
+	if not url_is_valid(request.POST.get('imgur_url')):
+		raise Warning('URL is not valid')
+		
+	url = request.POST.get('imgur_url')
+	
+	try:
+		images = get_imgur_images(url)
+	except:
+		raise Warning("Could not get images. Is URL correct?")
+	image_items = []
+	for item in images:
+		if item['id'] in request.POST:
+			if not 'image' == get_extension_type(item['ext']):
+				raise Warning("Album includes non-image or invalid file(s)")
+			image_items.append(item)
+	
+	private = True if request.POST.get('private') else False
+	
+	if request.POST.get('imgur_type') == 'separate':
+		for item in image_items:
+			url = item['full_url']
+			extension = item['ext']
+			filesize = item['size']/1024
+			priority = get_priority(filesize)
+			upload = prepare_upload(request.user, '',  private,  int(request.POST.get('board')),  url, extension, request.POST.get('title'), 'url', priority, filesize)
+			upload.waiting()
+			process_upload.delay(priority)
+	else:
+		if len(image_items)<2:
+			raise Warning("Album should include at least two images.")
+		extension = 'album'
+		filesize = 0
+		for item in image_items:
+			filesize += item['size']
+		filesize /= 1024
+		priority = get_priority(filesize)
+		title = request.POST.get('title') if request.POST.get('title') else get_imgur_title(url)
+		upload = prepare_upload(request.user, '',  private,  int(request.POST.get('board')),  url, extension, title, 'imgur', priority, filesize)
+		upload.store_options({'image_items': image_items})
+		upload.waiting()
+		process_upload.delay(priority)
 	return

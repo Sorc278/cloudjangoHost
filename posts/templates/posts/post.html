@@ -3,13 +3,13 @@
 {% block title %} Post {% endblock %}
 
 {% block extraHrefs %}
-    {% if post.extension_type == 'video' %}
-        {% load static%}
-        <link href="{% static 'videojs/video-js.min.css' %}" rel="stylesheet">
-    	<script>window.HELP_IMPROVE_VIDEOJS = false;</script>
-    	<script src="{% static 'videojs/video.min.js' %}"></script>
-    	<script src="{% static 'subtitle-octopus/subtitles-octopus.js' %}"></script>
-    {% endif %}
+	{% if post.extension_type == 'video' %}
+		{% load static%}
+		<link href="{% static 'videojs/video-js.min.css' %}" rel="stylesheet">
+		<script>window.HELP_IMPROVE_VIDEOJS = false;</script>
+		<script src="{% static 'videojs/video.min.js' %}"></script>
+		<script src="{% static 'subtitle-octopus/subtitles-octopus.js' %}"></script>
+	{% endif %}
 {% endblock %}
 
 {% block jsFunctions %}
@@ -44,8 +44,8 @@
 
 {% block jsInit %}
 <script type="text/javascript">
-    function init(){
-        resizeToFit();
+	function init(){
+		resizeToFit();
 		autocompleteInit("{{ TAG_DICT_URL }}", "tagAddBox");
 		$('#sug_button').click(getSugTags)
 	}
@@ -55,13 +55,15 @@
 {% block content %}
 <br>
 <div class="row">
-    <div class="col s2">
-        <!-- size buttons -->
-        <button class="btn-floating waves-effect waves-light deep-purple darken-4" onclick="resizeToFull()"><i class="material-icons">swap_horiz</i></button>
-        <button class="btn-floating waves-effect waves-light deep-purple darken-4" onclick="resizeToFit()"><i class="material-icons">swap_vert</i></button>
-        <button class="btn-floating waves-effect waves-light deep-purple darken-4" onclick="changeByPx(-150)"><i class="material-icons">remove</i></button>
-        <button class="btn-floating waves-effect waves-light deep-purple darken-4" onclick="changeByPx(150)"><i class="material-icons">add</i></button>
-        
+	<div class="col s2">
+		<!-- size buttons -->
+		<div id="fob">
+			<button class="btn-floating waves-effect waves-light deep-purple darken-4" onclick="resizeToFull()"><i class="material-icons">swap_horiz</i></button>
+			<button class="btn-floating waves-effect waves-light deep-purple darken-4" onclick="resizeToFit()"><i class="material-icons">swap_vert</i></button>
+			<button class="btn-floating waves-effect waves-light deep-purple darken-4" onclick="changeByPx(-150)"><i class="material-icons">remove</i></button>
+			<button class="btn-floating waves-effect waves-light deep-purple darken-4" onclick="changeByPx(150)"><i class="material-icons">add</i></button>
+		</div>
+		
 		<div class="card grey darken-3 white-text">
 			<div class="card-content">
 				{% for tag in tags %}
@@ -100,13 +102,35 @@
 				<span class="card-title grey-text text-darken-4">Suggested Tags<i class="material-icons right">close</i></span>
 					{% include 'tags/suggestedTags.html' %}
 			</div>
-	    </div>
-    </div>
-    
-    <div id="content_wrap" class="col s10 center">
-    	{% with ext=post.extension_type %}
-	    	{% if ext == "image" %}
+		</div>
+	</div>
+	
+	<div id="content_wrap" class="col s10 center">
+		{% with ext=post.extension_type %}
+			{% if ext == "image" %}
 				<img id="content" class="responsive-img" src="{{ post.url_post }}"></img>
+			{% elif ext == "other" %}
+				{% if post.extension == "album" %}
+					{% include 'posts/gallery_js.html' %}
+					<div class="fixed-action-btn horizontal" style="opacity:0.5">
+						<a id="page_num" class="btn-floating btn-large purple">
+							Page
+						</a>
+						<ul>
+							<li><button class="btn-floating purple" onclick="changeByPx(-150)"><i class="material-icons">remove</i></button></li>
+							<li><button class="btn-floating purple" onclick="changeByPx(150)"><i class="material-icons">add</i></button></li>
+							<li><button class="btn-floating purple" onclick="changePageRel(-1)"><i class="material-icons">chevron_left</i></button></li>
+							<li><button class="btn-floating purple" onclick="changePageRel(1)"><i class="material-icons">chevron_right</i></button></li>
+						</ul>
+					</div>
+					<img id="content" class="responsive-img" src="{{ post.url_post }}/0.jpg"></img>
+					<img id="content_next" class="responsive-img" src="{{ post.url_post }}/1.jpg" style="display:none;"></img>
+					<div style="position:fixed; width:100%; height:100%;" class="valign-wrapper">
+						<div class="white left">
+							<a href="#!"><i class="material-icons">chevron_left</i></a>
+						</div>
+					</div>
+				{% endif %}
 			{% elif ext == "music" %}
 				<img id='content' class='responsive-img' src='{{ post.url_thumb }}'/>
 				<audio id='content' class='responsive-img' src='{{ post.url_post }}' autoplay='' loop='' controls='true' style='width:90%'></audio>
@@ -145,8 +169,8 @@
 					{% endif %}
 				{% endfor %}
 			{% endif %}
-    	{% endwith %}
-    </div>
+		{% endwith %}
+	</div>
 </div>
 {% endblock %}
 						echo "<script>window.onload = (function(){resizeToFit();videojs('content').ready(function (){var video = this.tech_.el_;window.SubtitlesOctopusOnLoad = function () {var options = {video: video, subUrl: '../store/".$post["storageDisk"]."/".$post["filename"]."extra".$_GET["subs"].".ass', workerUrl: '../js/subtitles-octopus-worker.js'};window.octopusInstance = new SubtitlesOctopus(options);};if(SubtitlesOctopus){SubtitlesOctopusOnLoad();}});});</script>";

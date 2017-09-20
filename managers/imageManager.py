@@ -24,6 +24,17 @@ def process_upload(upload):
 	
 	return
 
+def process_image(path):
+	if not os.path.isfile(path):
+		raise OSError('Failed to process image, image to process is missing.')
+	ext = path[path.rindex('.')+1:]
+	if 'jpeg' == ext:
+		oldpath = path
+		newpath = path[:path.rindex('.')] + '.jpg'
+		os.rename(path, newpath)
+	if not os.path.isfile(newpath):
+		raise OSError('Failed to process image, resulting file is missing.')
+
 def create_thumb(image_path, thumb_path):
 	im = get_thumb_in_memory(image_path)
 	im.save(thumb_path, "JPEG", quality=90)

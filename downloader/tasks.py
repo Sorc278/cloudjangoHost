@@ -13,6 +13,7 @@ import managers.imageManager as imageManager
 import managers.videoManager as videoManager
 import managers.musicManager as musicManager
 import managers.documentManager as documentManager
+import managers.otherManager as otherManager
 from posts.operations import create_post
 
 from .helpers import send_get, get_youtube_meta
@@ -31,39 +32,23 @@ def process_upload(priority):
 	upload.working('')
 	
 	#do processing here
-	if 'url' == upload.downloadType:
-		try:
+	try:
+		if 'url' == upload.downloadType:
 			prepare_file_url(upload)
-		except Warning as w:
-			logging.warning(w, exc_info=True)
-			upload.fatal_error(str(w))
-			return
-		except Exception as e:
-			logging.exception(e)
-			upload.fatal_error('Internal server error')
-			return
-	if 'upload' == upload.downloadType:
-		try:
+		if 'upload' == upload.downloadType:
 			prepare_file_upload(upload)
-		except Warning as w:
-			logging.warning(w, exc_info=True)
-			upload.fatal_error(str(w))
-			return
-		except Exception as e:
-			logging.exception(e)
-			upload.fatal_error('Internal server error')
-			return
-	if 'youtube' == upload.downloadType:
-		try:
+		if 'youtube' == upload.downloadType:
 			prepare_file_youtube(upload)
-		except Warning as w:
-			logging.warning(w, exc_info=True)
-			upload.fatal_error(str(w))
-			return
-		except Exception as e:
-			logging.exception(e)
-			upload.fatal_error('Internal server error')
-			return
+		if 'imgur' == upload.downloadType:
+			prepare_file_imgur(upload)
+	except Warning as w:
+		logging.warning(w, exc_info=True)
+		upload.fatal_error(str(w))
+		return
+	except Exception as e:
+		logging.exception(e)
+		upload.fatal_error('Internal server error')
+		return
 	
 	try:
 		post = finalise_upload(upload)
@@ -129,6 +114,18 @@ def prepare_file_youtube(upload):
 	if options:
 		urlretrieve(meta['thumb_url'], upload.get_temp_thumb())
 	return
+
+def prepare_file_imgur(upload):
+	upload.downloading(0)
+	pages = 0
+	downloaded = 0
+	image_items = upload.get_options()['image_items']
+	for item in image_items:
+		urlretrieve(item['full_url'], '{0!s}{1!s}.{2!s}'.format(upload.get_temp_folder(), pages, item['ext']))
+		downloaded += item['size']
+		upload.downloading(downloaded/1024)
+		pages += 1
+	return
 	
 def finalise_upload(upload):
 	if not upload.main_file_present():
@@ -150,18 +147,22 @@ def finalise_upload(upload):
 			musicManager.process_upload(upload)
 		except Exception as e:
 			raise
-	# elif 'document' == extType:
-	# 	try:
-	# 		documentManager.process_document(upl)
-	# 		documentManager.create_thumb(upl)
-	# 	except:
-	# 		err_upload(upl, 'Failed to process file')
-	# 		raise
+	elif 'document' == extType:
+		try:
+			documentManager.process_document(upload)
+			documentManager.create_thumb(upload)
+		except Exception as e:
+			raise
+	elif 'other' == extType:
+		try:
+			otherManager.process_upload(upload)
+		except Exception as e:
+			raise
 	
 	try:
 		post = create_post(upload)
 	except Exception as e:
-		if post:
+		if 'post' in locals():
 			post.delete()
 		raise
 	try:

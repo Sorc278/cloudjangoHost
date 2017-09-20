@@ -5,6 +5,7 @@
 {% block jsFunctions %}
 {% include 'submit/upload_js.html' %}
 {% include 'submit/youtube_js.html' %}
+{% include 'submit/imgur_js.html' %}
 {% endblock %}
 
 {% block jsInit %}
@@ -20,6 +21,7 @@
             else return true;
 		});
 		$("#youtube_query_btn").click(queryYoutube);
+		$("#imgur_query_btn").click(queryImgur);
 	}
 </script>
 {% endblock %}
@@ -67,6 +69,7 @@
                             <div class="col s12">
                                 <ul class="tabs tabs-fixed-width">
                                     <li class="tab col s3"><a href="#url" onclick="$('#submit_type').val('url');" class="active">URL</a></li>
+                                    <li class="tab col s3"><a href="#imgur" onclick="$('#submit_type').val('imgur');">Imgur</a></li>
                                     <li class="tab col s3"><a href="#youtube" onclick="$('#submit_type').val('youtube');">Youtube</a></li>
                                     <li class="tab col s3"><a href="#upload" onclick="$('#submit_type').val('upload');">Upload</a></li>
                                     <li class="tab col s3 disabled"><a href="#website" onclick="$('#submit_type').val('website');">Website</a></li>
@@ -83,6 +86,27 @@
                                     <input id="url_url" name="url_url" type="text" autocomplete='off'>
                                     <label for="url_url">Paste URL</label>
                                 </div>
+                            </div>
+                        </div>
+                        <div id="imgur">
+                            <div class="row">
+                                <!-- haxxxor stuff -->
+                                <div class="file-field input-field">
+                                    <div id="imgur_query_btn" class="btn waves-effect waves-light deep-purple darken-4">
+                                        <span>Query Imgur</span>
+                                    </div>
+                                    <div class="file-path-wrapper">
+                                        <input id="imgur_url" name="imgur_url" class="file-path" type="text" autocomplete='off'>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="imgur_types"></div>
+                            <div class="row">
+                                <ul class="tabs">
+                                    <li class="tab"><a href="#" onclick="$('#imgur_type').val('separate');">Separate</a></li>
+                                    <li class="tab"><a href="#" onclick="$('#imgur_type').val('album');" class="active">As Album</a></li>
+                                </ul>
+                                <input id="imgur_type" type="text" name="imgur_type" value="album" autocomplete='off' hidden>
                             </div>
                         </div>
                         <div id="youtube">

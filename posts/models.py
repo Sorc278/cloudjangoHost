@@ -6,6 +6,7 @@ if sys.version_info[0] < 3:
 else:
 	from io import BytesIO as pilIO
 from PIL import Image
+from ast import literal_eval
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -30,8 +31,17 @@ class Post(models.Model):
 	source = models.TextField(blank=False, null=False)
 	size = models.IntegerField(blank=False, null=False)
 	
+	options = models.CharField(blank=True, null=True, max_length=2048)
+	
 	def __str__(self):
 		return self.date.__str__() + ' - ' + self.filename
+		
+	def store_options(self, dict):
+		self.options = repr(dict)
+		self.save()
+		
+	def get_options(self):
+		return literal_eval(self.options)
 		
 	def get_post_main(self):
 		return '{0!s}{1!s}.{2!s}'.format(s.get_post_folder(self.store), self.filename, self.extension)
@@ -63,13 +73,27 @@ class Post(models.Model):
 				raise OSError('Could not remove post thumb')
 				
 	def move_files_from(self, upload):
-		if os.path.isfile(upload.get_temp_main()):
-			os.rename(upload.get_temp_main(), self.get_post_main())
-			if not os.path.isfile(self.get_post_main()):
-				raise OSError('Could not move main file from upload to post location')
+		if upload.extension == 'album':
+			path = self.get_post_main()
+			images = self.get_options()['images']
+			s.create_folder(path)
+			for image in images:
+				new_path = '{0!s}/{1!s}'.format(path, image['path'])
+				temp_path = '{0!s}{1!s}'.format(upload.get_temp_folder(), image['path'])
+				if os.path.isfile(temp_path):
+					os.rename(temp_path, new_path)
+					if not os.path.isfile(new_path):
+						raise OSError('Could not move main file from upload to post location')
+				else:
+					raise OSError('Album image now found')
 		else:
-			raise OSError('Main file was not found')
-		
+			if os.path.isfile(upload.get_temp_main()):
+				os.rename(upload.get_temp_main(), self.get_post_main())
+				if not os.path.isfile(self.get_post_main()):
+					raise OSError('Could not move main file from upload to post location')
+			else:
+				raise OSError('Main file was not found')
+			
 		if os.path.isfile(upload.get_temp_thumb()):
 			os.rename(upload.get_temp_thumb(), self.get_post_thumb())
 			if not os.path.isfile(self.get_post_thumb()):

@@ -1,3 +1,5 @@
+import json
+
 from django.urls import reverse
 from django.shortcuts import render
 from django.core.paginator import Paginator
@@ -23,6 +25,8 @@ def show_post(request, board, filename):
         'tags': tags,
         'TAG_DICT_URL': TAG_DICT_URL,
     }
+    if post.extension == 'album':
+        cont['pages_list_raw'] = json.dumps(post.get_options()['images'])
     return render(request, "posts/post.html", cont)
 
 @login_required

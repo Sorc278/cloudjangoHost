@@ -1,0 +1,51 @@
+<script>
+	var gallery_js_page = 0;
+	var gallery_js_total_pages = 0;
+	var pages = []
+	function init_gallery_js(){
+		var pages_list_raw = {{ pages_list_raw|safe }};
+		gallery_js_page = 0;
+		gallery_js_total_pages = 0;
+		for(var page in pages_list_raw){
+			pages[gallery_js_total_pages] = pages_list_raw[page]['path'];
+			gallery_js_total_pages += 1;
+		}
+		changePage(0);
+	}
+	
+	window.addEventListener('DOMContentLoaded', init_gallery_js, false);
+	
+	function changePage(page){
+		var path_to_album = "{{ post.url_post }}";
+		document.getElementById("content").src = path_to_album + '/' + pages[page];
+		document.getElementById("page_num").innerHTML = (page+1) + '/' + gallery_js_total_pages;
+		if(page+1 < gallery_js_total_pages)
+			document.getElementById("content_next").src = path_to_album + '/' + pages[page+1];
+	}
+	
+	function changePageRel(relPage){
+		gallery_js_page+=relPage;
+		
+		if(gallery_js_page<0)
+			gallery_js_page=0;
+		else if(gallery_js_page>=gallery_js_total_pages)
+			gallery_js_page=gallery_js_total_pages-1;
+			
+		changePage(gallery_js_page)
+	}
+	
+	$(document).keydown(function(e) {
+		switch(e.which) {
+			case 37: // left
+			changePageRel(-1);
+			break;
+	
+			case 39: // right
+			changePageRel(1);
+			break;
+	
+			default: return; // exit this handler for other keys
+		}
+		e.preventDefault(); // prevent the default action (scroll / move caret)
+	});
+</script>

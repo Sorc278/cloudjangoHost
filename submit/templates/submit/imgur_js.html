@@ -1,0 +1,57 @@
+<script>
+	function queryImgur(){
+		CSRF_TOKEN = "{{ csrf_token }}";
+		document.getElementById("imgur_types").innerHTML=`
+<div class="row center">
+	<div class="preloader-wrapper big active">
+		<div class="spinner-layer spinner-blue-only">
+			<div class="circle-clipper left">
+				<div class="circle"></div>
+			</div>
+			<div class="gap-patch">
+				<div class="circle"></div>
+			</div>
+			<div class="circle-clipper right">
+				<div class="circle"></div>
+			</div>
+		</div>
+	</div>
+</div>`;
+		$.ajax({
+			url: "{% url 'submit:query_imgur' %}",
+			type: 'POST',
+			data: {"url": document.getElementById("imgur_url").value, "csrfmiddlewaretoken": CSRF_TOKEN},
+			async: true,
+			success: function (data) {
+				document.getElementById("imgur_types").innerHTML=`
+<h5>Image List</h5>
+<table>
+	<thead>
+		<tr>
+			<th>Select</th>
+			<th>Image</th>
+		</tr>
+	</thead>
+	<tbody id='imgur_list'>
+	</tbody>
+</table>
+`;
+				var img_str = '';
+				for(var id in data['images']){
+					item = data['images'][id]
+					img_str +=`
+<tr>
+	<td>
+		<p>
+			<input name="`+item['id']+`" type="checkbox" id="imgur_check`+item['id']+`"/>
+			<label for="imgur_check`+item['id']+`"></label>
+		</p>
+	</td>
+	<td><img class="thumb" src="`+item['url']+`"/></td>
+</tr>`;
+				}
+				document.getElementById("imgur_list").innerHTML = img_str;
+			}
+		});
+	}
+</script>

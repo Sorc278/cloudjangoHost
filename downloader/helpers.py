@@ -1,12 +1,16 @@
 import requests, mimetypes
 import youtube_dl as ydl
+from imgurpython import ImgurClient
 
 from django.shortcuts import render
 
 from managers.imageManager import image_types, image_mimes, image_mimes_to_ext
+from managers.extHelpers import extension_from_mime
+
+from cloudjangohost.settings import IMGUR_ID, IMGUR_SECRET
 
 boards = [1, 2, 3, 4]
-allowed_submit_types = ['url', 'youtube', 'upload']
+allowed_submit_types = ['url', 'youtube', 'upload', 'imgur']
 priorities = ['Low', 'High']
 
 #utility
@@ -134,3 +138,25 @@ def human_size(size_in_b):
 		size /= 1024.0
 		#by Fred Cirera, slighlty modified to convert from KB
 		#https://web.archive.org/web/20111010015624/http://blogmag.net/blog/read/38/Print_human_readable_file_size
+		
+def get_imgur_images(url):
+	images = ImgurClient(IMGUR_ID, IMGUR_SECRET).get_album_images(get_imgur_album_id(url))
+	ret = []
+	for item in images:
+		char_index = item.link.rindex('.')
+		link = '{0!s}t{1!s}'.format(item.link[:char_index], item.link[char_index:])
+		ret.append({
+			'id': item.id,
+			'url': link,
+			'full_url': item.link,
+			'mime': item.type,
+			'ext': extension_from_mime(item.type),
+			'size': item.size,
+		})
+	return ret
+	
+def get_imgur_title(url):
+	return ImgurClient(IMGUR_ID, IMGUR_SECRET).get_album(get_imgur_album_id(url)).title
+	
+def get_imgur_album_id(url):
+	return url[url.rindex('/')+1:]
