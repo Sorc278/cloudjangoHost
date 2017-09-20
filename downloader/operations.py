@@ -149,7 +149,7 @@ def submit_imgur(request):
 		for item in image_items:
 			url = item['full_url']
 			extension = item['ext']
-			filesize = item['size']/1024
+			filesize = int(round(item['size']/1024))
 			priority = get_priority(filesize)
 			upload = prepare_upload(request.user, '',  private,  int(request.POST.get('board')),  url, extension, request.POST.get('title'), 'url', priority, filesize)
 			upload.waiting()
@@ -161,7 +161,7 @@ def submit_imgur(request):
 		filesize = 0
 		for item in image_items:
 			filesize += item['size']
-		filesize /= 1024
+		filesize = int(round(filesize/1024))
 		priority = get_priority(filesize)
 		title = request.POST.get('title') if request.POST.get('title') else get_imgur_title(url)
 		upload = prepare_upload(request.user, '',  private,  int(request.POST.get('board')),  url, extension, title, 'imgur', priority, filesize)
