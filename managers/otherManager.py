@@ -16,5 +16,5 @@ def process_upload(upl):
 def create_thumb(upl):
 	#TODO: find how to create good pdf thumb from first page only
 	if upl.extension == 'album':
-		imageManager.create_thumb('{0!s}1.{1!s}'.format(upl.get_temp_folder(), upl.get_options()['image_items'][0]['ext']) ,upl.get_temp_thumb())
+		imageManager.create_thumb('{0!s}0.{1!s}'.format(upl.get_temp_folder(), upl.get_options()['image_items'][0]['ext']) ,upl.get_temp_thumb())
 	return
