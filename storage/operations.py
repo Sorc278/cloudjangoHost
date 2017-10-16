@@ -43,9 +43,6 @@ def get_temp_path_folder(store, name):
 def get_post_folder(store):
     return '{0!s}post/'.format(get_store_path(store))
 
-def get_thumb_folder(store):
-    return '{0!s}thumb/'.format(get_store_path(store))
-
 #other gets
 def get_file_size(path):
     return int(check_output("expr $(stat -c '%s' "+path+") / 1024", shell=True))

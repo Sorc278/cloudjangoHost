@@ -43,11 +43,14 @@ class Post(models.Model):
 	def get_options(self):
 		return literal_eval(self.options)
 		
+	def get_folder(self):
+		return '{0!s}{1!s}/'.format(s.get_post_folder(self.store), self.filename)
+		
 	def get_post_main(self):
-		return '{0!s}{1!s}.{2!s}'.format(s.get_post_folder(self.store), self.filename, self.extension)
+		return '{0!s}main.{1!s}'.format(self.get_folder(), self.extension)
 		
 	def get_post_thumb(self):
-		return '{0!s}{1!s}.jpg'.format(s.get_thumb_folder(self.store), self.filename)
+		return '{0!s}thumb.jpg'.format(self.get_folder())
 	
 	def url_post(self):
 		return '{0!s}{1!s}'.format(SITE_BASE, self.get_post_main().replace(MEDIA_ROOT, MEDIA_URL))
@@ -62,23 +65,19 @@ class Post(models.Model):
 		return reverse('posts:post', kwargs={'board': self.board, 'filename': self.filename})
 		
 	def delete_files(self):
-		if os.path.isfile(self.get_post_main()):
-			os.remove(self.get_post_main())
-			if os.path.isfile(self.get_post_main()):
-				raise OSError('Could not remove post main file')
-		
-		if os.path.isfile(self.get_post_thumb()):
-			os.remove(self.get_post_thumb())
-			if os.path.isfile(self.get_post_thumb()):
-				raise OSError('Could not remove post thumb')
+		try:
+			 s.delete_folder(self.get_folder())
+		except Exception as e:
+			raise OSError('Could not remove post')
 				
 	def move_files_from(self, upload):
+		s.create_folder(self.get_folder())
+		
 		if upload.extension == 'album':
-			path = self.get_post_main()
+			path = self.get_folder()
 			images = self.get_options()['images']
-			s.create_folder(path)
 			for image in images:
-				new_path = '{0!s}/{1!s}'.format(path, image['path'])
+				new_path = '{0!s}{1!s}'.format(path, image['path'])
 				temp_path = '{0!s}{1!s}'.format(upload.get_temp_folder(), image['path'])
 				if os.path.isfile(temp_path):
 					os.rename(temp_path, new_path)
@@ -117,6 +116,17 @@ class Post(models.Model):
 	def thumb_from_image(self, imageData):
 		im = imageManager.get_thumb_in_memory_from_memory(Image.open(pilIO(imageData)))#pilIO is imported ByteIO or SytingIO
 		im.save(self.get_post_thumb(), "JPEG", quality=90)
+		
+	def legacy_to_new_format(self):
+		old_main = self.get_folder()[:-1] + "." + self.extension
+		old_thumb = self.get_folder()[:-1][:-17][:-4] + "thumb/" +self.filename + ".jpg"
+		
+		if os.path.isfile(old_main):
+			s.create_folder(self.get_folder())
+			
+			os.rename(old_main, self.get_post_main())
+			if os.path.isfile(old_thumb):
+				os.rename(old_thumb, self.get_post_thumb())
 		
 class Extra(models.Model):
 	post = models.ForeignKey(Post, on_delete=models.CASCADE)
