@@ -16,11 +16,11 @@
 	window.addEventListener('DOMContentLoaded', init_gallery_js, false);
 	
 	function changePage(page){
-		var path_to_album = "{{ post.url_post }}";
-		document.getElementById("content").src = path_to_album + '/' + pages[page];
+		var path_to_album = "{{ post.url_folder }}";
+		document.getElementById("content").src = path_to_album + pages[page];
 		document.getElementById("page_num").innerHTML = (page+1) + '/' + gallery_js_total_pages;
 		if(page+1 < gallery_js_total_pages)
-			document.getElementById("content_next").src = path_to_album + '/' + pages[page+1];
+			document.getElementById("content_next").src = path_to_album + pages[page+1];
 	}
 	
 	function changePageRel(relPage){

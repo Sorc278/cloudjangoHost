@@ -52,6 +52,9 @@ class Post(models.Model):
 	def get_post_thumb(self):
 		return '{0!s}thumb.jpg'.format(self.get_folder())
 	
+	def url_folder(self):
+		return '{0!s}{1!s}'.format(SITE_BASE, self.get_folder().replace(MEDIA_ROOT, MEDIA_URL))
+
 	def url_post(self):
 		return '{0!s}{1!s}'.format(SITE_BASE, self.get_post_main().replace(MEDIA_ROOT, MEDIA_URL))
 
