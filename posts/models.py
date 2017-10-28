@@ -51,18 +51,20 @@ class Post(models.Model):
 		
 	def get_post_thumb(self):
 		return '{0!s}thumb.jpg'.format(self.get_folder())
+		
+	def url_return_as(self, path):
+		return '{0!s}{1!s}'.format(SITE_BASE, path.replace(MEDIA_ROOT, MEDIA_URL))
 	
 	def url_folder(self):
-		return '{0!s}{1!s}'.format(SITE_BASE, self.get_folder().replace(MEDIA_ROOT, MEDIA_URL))
+		return self.url_return_as(self.get_folder())
 
 	def url_post(self):
-		return '{0!s}{1!s}'.format(SITE_BASE, self.get_post_main().replace(MEDIA_ROOT, MEDIA_URL))
+		return self.url_return_as(self.get_post_main())
 
 	def url_thumb(self):
-		if os.path.isfile(self.get_post_thumb()):
-			return '{0!s}{1!s}'.format(SITE_BASE, self.get_post_thumb().replace(MEDIA_ROOT, MEDIA_URL))
-		else:
-			return '{0!s}static/{1!s}.png'.format(SITE_BASE, self.extension)
+		p = self.get_post_thumb()
+		ret = self.url_return_as(p) if os.path.isfile(p) else '{0}static/{1}.png'.format(SITE_BASE, self.extension)
+		return ret
 			
 	def url_post_page(self):
 		return reverse('posts:post', kwargs={'board': self.board, 'filename': self.filename})
@@ -71,7 +73,7 @@ class Post(models.Model):
 		try:
 			 s.delete_folder(self.get_folder())
 		except Exception as e:
-			raise OSError('Could not remove post')
+			raise OSError('Could not remove post files')
 				
 	def move_files_from(self, upload):
 		s.create_folder(self.get_folder())
@@ -82,24 +84,12 @@ class Post(models.Model):
 			for image in images:
 				new_path = '{0!s}{1!s}'.format(path, image['path'])
 				temp_path = '{0!s}{1!s}'.format(upload.get_temp_folder(), image['path'])
-				if os.path.isfile(temp_path):
-					os.rename(temp_path, new_path)
-					if not os.path.isfile(new_path):
-						raise OSError('Could not move main file from upload to post location')
-				else:
-					raise OSError('Album image now found')
+				s.move_file(temp_path, new_path)
 		else:
-			if os.path.isfile(upload.get_temp_main()):
-				os.rename(upload.get_temp_main(), self.get_post_main())
-				if not os.path.isfile(self.get_post_main()):
-					raise OSError('Could not move main file from upload to post location')
-			else:
-				raise OSError('Main file was not found')
-			
+			s.move_file(upload.get_temp_main(), self.get_post_main())
+		
 		if os.path.isfile(upload.get_temp_thumb()):
-			os.rename(upload.get_temp_thumb(), self.get_post_thumb())
-			if not os.path.isfile(self.get_post_thumb()):
-				raise OSError('Could not move thumb from upload to post location')
+			s.move_file(upload.get_temp_thumb(), self.get_post_thumb())
 		else:
 			extType = get_extension_type(upload.extension)
 			if not 'music' == extType:
@@ -120,16 +110,14 @@ class Post(models.Model):
 		im = imageManager.get_thumb_in_memory_from_memory(Image.open(pilIO(imageData)))#pilIO is imported ByteIO or SytingIO
 		im.save(self.get_post_thumb(), "JPEG", quality=90)
 		
-	def legacy_to_new_format(self):
-		old_main = self.get_folder()[:-1] + "." + self.extension
-		old_thumb = self.get_folder()[:-1][:-17][:-4] + "thumb/" +self.filename + ".jpg"
-		
-		if os.path.isfile(old_main):
-			s.create_folder(self.get_folder())
-			
-			os.rename(old_main, self.get_post_main())
-			if os.path.isfile(old_thumb):
-				os.rename(old_thumb, self.get_post_thumb())
+	# def legacy_to_new_format(self):
+	# 	old_main = self.get_folder()[:-1] + "." + self.extension
+	# 	old_thumb = self.get_folder()[:-1][:-17][:-4] + "thumb/" +self.filename + ".jpg"
+	# 	if os.path.isfile(old_main):
+	# 		s.create_folder(self.get_folder())
+	# 		os.rename(old_main, self.get_post_main())
+	# 		if os.path.isfile(old_thumb):
+	# 			os.rename(old_thumb, self.get_post_thumb())
 		
 class Extra(models.Model):
 	post = models.ForeignKey(Post, on_delete=models.CASCADE)

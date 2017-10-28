@@ -129,6 +129,13 @@
 			{% elif ext == "music" %}
 				<img id='content' class='responsive-img' src='{{ post.url_thumb }}'/>
 				<audio id='content' class='responsive-img' src='{{ post.url_post }}' autoplay='' loop='' controls='true' style='width:90%'></audio>
+			{% elif ext == "document" %}
+				{% if post.extension == "pdf" %}
+					<div id='content'>
+						<embed class='responsive-img' style='width:100%; height: 85vh;' src='{{ post.url_post }}' type='application/pdf'>
+						</embed>
+					</div>
+				{% endif %}
 			{% elif ext == "video" %}
 				<video id="content" class="video-js" style="position: relative !important; width: 100% !important;" controls loop preload="auto" data-setup="{}">
 					<source src="{{ post.url_post }}" type="video/{{ post.extension }}">

@@ -150,7 +150,6 @@ def finalise_upload(upload):
 	elif 'document' == extType:
 		try:
 			documentManager.process_document(upload)
-			documentManager.create_thumb(upload)
 		except Exception as e:
 			raise
 	elif 'other' == extType:
