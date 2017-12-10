@@ -1,7 +1,7 @@
 import logging
 
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 
@@ -53,7 +53,11 @@ def submit_api(request):
 	user = get_user_by_api_key(request.POST.get("key"))
 	if user:
 		request.user = user
-		return submit(request)
+		ret = submit(request)
+		if isinstance(ret, HttpResponseRedirect):
+			return HttpResponse("Success")
+		else:
+			return HttpResponse("", status=400)
 	else:
 		return HttpResponse("", status=403)
 
