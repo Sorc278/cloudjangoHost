@@ -67,7 +67,7 @@ def process_upload(priority):
 def prepare_file_url(upload):
 	upload.working('Downloaded 0 out of '+str(upload.filesize)+" KB")
 	chunk_num = 0
-	chunk_size_in_kb = 64*1024
+	chunk_size_in_kb = 1*1024
 	chunk_size=chunk_size_in_kb*1024
 	response = send_get(upload.url)
 	for chunk in response.iter_content(chunk_size=chunk_size):
