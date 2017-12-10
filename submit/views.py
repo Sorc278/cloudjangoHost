@@ -3,9 +3,11 @@ import logging
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 
 from downloader.helpers import submit_type_is_valid, get_youtube_formats, get_imgur_images
 from downloader.operations import submit_url, submit_upload, submit_youtube, submit_imgur
+from home.views import get_user_by_api_key
 
 # Create your views here.
 @login_required
@@ -45,6 +47,15 @@ def submit(request):
 			return HttpResponse(content=response)
 	
 	return render(request, 'submit/index.html', None)
+
+@csrf_exempt
+def submit_api(request):
+	user = get_user_by_api_key(request.POST.get("key"))
+	if user:
+		request.user = user
+		return submit(request)
+	else:
+		return HttpResponse("", status=403)
 
 @login_required
 def query_youtube(request):
