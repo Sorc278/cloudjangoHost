@@ -25,6 +25,8 @@
 			success: function (data) {
 				document.getElementById("imgur_types").innerHTML=`
 <h5>Image List</h5>
+<a id="imgur_check" class="waves-effect waves-light deep-purple darken-4 btn">Check all</a>
+<a id="imgur_clear" class="waves-effect waves-light deep-purple darken-4 btn">Clear all</a>
 <table>
 	<thead>
 		<tr>
@@ -43,7 +45,7 @@
 <tr>
 	<td>
 		<p>
-			<input name="`+item['id']+`" type="checkbox" id="imgur_check`+item['id']+`"/>
+			<input name="`+item['id']+`" type="checkbox" id="imgur_check`+item['id']+`" class="imgur_check_item"/>
 			<label for="imgur_check`+item['id']+`"></label>
 		</p>
 	</td>
@@ -51,7 +53,20 @@
 </tr>`;
 				}
 				document.getElementById("imgur_list").innerHTML = img_str;
+				$("#imgur_check").click(checkAll);
+				$("#imgur_clear").click(clearAll);
 			}
+		});
+	}
+	
+	function checkAll(){
+		$('.imgur_check_item').each(function(i, obj) {
+			$(this).prop('checked', true);
+		});
+	}
+	function clearAll(){
+		$('.imgur_check_item').each(function(i, obj) {
+			$(this).prop('checked', false);
 		});
 	}
 </script>

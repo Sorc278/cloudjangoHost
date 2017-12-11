@@ -61,12 +61,12 @@ def submit_api(request):
 	else:
 		return HttpResponse("", status=403)
 
-@login_required
+@csrf_exempt
 def query_youtube(request):
 	url = request.POST.get('url')
 	return JsonResponse(get_youtube_formats(url))
 	
-@login_required
+@csrf_exempt
 def query_imgur(request):
 	url = request.POST.get('url')
 	return JsonResponse({ 'images': get_imgur_images(url) })
