@@ -67,7 +67,7 @@ def process_upload(priority):
 def prepare_file_url(upload):
 	upload.working('Downloaded 0 out of '+str(upload.filesize)+" KB")
 	bytes_read = 0
-	chunk_buffer = ""
+	chunk_buffer = bytearray()
 	chunk_buffer_size = 0
 	chunk_buffer_threshold = 1024*1024*1
 	chunk_size_in_kb = 1*1024
@@ -79,10 +79,10 @@ def prepare_file_url(upload):
 				bytes_read += len(chunk)
 				upload.downloading(bytes_read/1024)
 				chunk_buffer_size += len(chunk)
-				chunk_buffer += chunk
+				chunk_buffer.extend(chunk)
 				if chunk_buffer_size > chunk_buffer_threshold:
 					upload.write_chunk_from_memory(chunk_buffer)
-					chunk_buffer = ""
+					chunk_buffer = bytearray()
 					chunk_buffer_size = 0
 			except Exception as e:
 				raise
