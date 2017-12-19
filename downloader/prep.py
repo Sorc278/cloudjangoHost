@@ -67,6 +67,7 @@ def create_upload(user, filename, private, board, url, extension, title, downloa
     else:
         upload.filesize = filesize
     
+    upload.filesize
     upload.save()
     return upload
 

@@ -43,9 +43,9 @@ def get_mime_from_url(url):
 #other
 def get_size_from_url(url):
     size = send_get(url).headers.get('content-length')
-    if not isinstance( size, int ):
-        return 0
-    return size
+    if size and size.isdigit():
+        return int(size)
+    return 0
     
 def get_priority(size):
     priority = 'Low' if 64000000 < size else 'High' #64MB
