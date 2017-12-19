@@ -67,7 +67,8 @@ def process_upload(priority):
 def prepare_file_url(upload):
 	upload.working('Downloaded 0 out of '+str(upload.filesize)+" KB")
 	chunk_num = 0
-	chunk_size_in_kb = 512
+	bytes_read = 0
+	chunk_size_in_kb = 1*1024
 	chunk_size=chunk_size_in_kb*1024
 	response = send_get(upload.url)
 	for chunk in response.iter_content(chunk_size):
@@ -75,7 +76,8 @@ def prepare_file_url(upload):
 			try:
 				upload.write_chunk_from_memory(chunk)
 				chunk_num += 1
-				upload.downloading(chunk_num*chunk_size_in_kb)
+				bytes_read += len(chunk)
+				upload.downloading(bytes_read/1024)
 			except Exception as e:
 				raise
 	return
