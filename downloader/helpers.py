@@ -42,7 +42,7 @@ def get_mime_from_url(url):
 
 #other
 def get_size_from_url(url):
-    size = send_get(url).headers['Content-length']
+    size = send_get(url).headers.get('content-length')
     if not isinstance( size, int ):
         return 0
     return size
