@@ -75,7 +75,7 @@ def prepare_file_url(upload):
 			try:
 				upload.write_chunk_from_memory(chunk)
 				chunk_num += 1
-				upload.downloading(chunk_num*chunk_size_in_kb, upload.filesize)
+				upload.downloading(chunk_num*chunk_size_in_kb)
 			except Exception as e:
 				raise
 	return
