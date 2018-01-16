@@ -1,35 +1,35 @@
-
-     ,-----.,--.                  ,--. ,---.   ,--.,------.  ,------.
-    '  .--./|  | ,---. ,--.,--. ,-|  || o   \  |  ||  .-.  \ |  .---'
-    |  |    |  || .-. ||  ||  |' .-. |`..'  |  |  ||  |  \  :|  `--, 
-    '  '--'\|  |' '-' ''  ''  '\ `-' | .'  /   |  ||  '--'  /|  `---.
-     `-----'`--' `---'  `----'  `---'  `--'    `--'`-------' `------'
-    ----------------------------------------------------------------- 
-
-
-Welcome to your Django project on Cloud9 IDE!
-
-Your Django project is already fully setup. Just click the "Run" button to start
-the application. On first run you will be asked to create an admin user. You can
-access your application from 'https://cloudjangohost-zmedardas.c9users.io/' and the admin page from 
-'https://cloudjangohost-zmedardas.c9users.io/admin'.
-
-## Starting from the Terminal
-
-In case you want to run your Django application from the terminal just run:
-
-1) Run syncdb command to sync models to database and create Django's default superuser and auth system
-
-    $ python manage.py migrate
-
-2) Run Django
-
-    $ python manage.py runserver $IP:$PORT
+# cloudjangoHost (name subject to change)
     
-## Configuration
+## Introduction
 
-You can configure your Python version and `PYTHONPATH` used in
-Cloud9 > Preferences > Project Settings > Language Support.
+This project aims to produce a cloud storage application (with many additional functions) for either a single or few different users.
+
+##Features:
+**File submission:**
+- File downloads by specifying URL
+- Youtube video downloads
+- Imgur albums (stored either as albums or separate files)
+- Uploads from computer
+
+**Tagging:**
+- Neural network for suggestions (working, but not included yet)
+
+**View files:**
+- View images (JPG, PNG, GIF)
+- Watch videos (MP4(h264), WEBM, MKV(h264))
+- Read PDFs
+
+## Missing features
+- Radio (to be ported)
+- .ass subtitles (to be ported)
+- Surround sound (browser limitations)
+- ...
+
+## Third Party
+- [Django](https://github.com/django/django)
+- [Video.js](https://github.com/videojs/video.js)
+- [SubtitlesOctopus](https://github.com/Dador/JavascriptSubtitlesOctopus)
+- ...
 
 ## Support & Documentation
 
