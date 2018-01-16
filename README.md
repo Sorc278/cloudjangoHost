@@ -4,7 +4,7 @@
 
 This project aims to produce a cloud storage application (with many additional functions) for either a single or few different users.
 
-##Features:
+## Features:
 **File submission:**
 - File downloads by specifying URL
 - Youtube video downloads
