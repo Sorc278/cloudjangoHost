@@ -105,7 +105,7 @@
 		</div>
 	</div>
 	
-	<div id="content_wrap" class="col s10 center">
+	<div id="content_wrap" class="col s10 center" data-post-url="{{ post.url_post }}">
 		{% with ext=post.extension_type %}
 			{% if ext == "image" %}
 				<img id="content" class="responsive-img" src="{{ post.url_post }}"></img>
