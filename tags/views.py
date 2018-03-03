@@ -1,4 +1,4 @@
-import subprocess
+import socket
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponse
@@ -53,18 +53,27 @@ def get_suggested_tags_json(request):
 	if not sugs.exists():
 	 	return JsonResponse({})
 
-	from cloudjangohost.settings import NEURAL_PATH_BIN, NEURAL_PATH
+	from cloudjangohost.settings import NEURAL_SUGGEST_SOCKET
 	from ast import literal_eval
 
 	tags = list(post.tag_set.values_list('id', flat=True))
 	tags_to_predict = list(sugs.values_list('tag__id', flat=True))
-
-	predicts = literal_eval(subprocess.check_output([NEURAL_PATH_BIN, NEURAL_PATH, str(tags), str(tags_to_predict)]).decode('utf-8'))
+	
+	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	s.connect(('localhost', NEURAL_SUGGEST_SOCKET))
+	s.sendall(str(tags))
+	s.shutdown(socket.SHUT_WR)
+	msg=[]
+	while True:
+		data = s.recv(8192)
+		if not data: break
+		msg.append(data)
+	predicts = literal_eval(''.join(msg))
 	sug_list = []
-	for predict in predicts:
+	for tag in tags_to_predict:
 		sug_list.append({
-			'name': Tag.objects.get(id=predict[0]).name,
-			'percent': predict[1]*100
+			'name': Tag.objects.get(id=tag).name,
+			'percent': predicts[tag]*100
 		})
 
 	sug_dict = {k: sug_list[k] for k in range(len(sug_list))}
