@@ -68,7 +68,7 @@ def get_suggested_tags_json(request):
 		data = s.recv(8192)
 		if not data: break
 		msg.append(data)
-	predicts = literal_eval(''.join(msg))
+	predicts = literal_eval(''.join(msg).decode('utf-8'))
 	sug_list = []
 	for tag in tags_to_predict:
 		sug_list.append({
