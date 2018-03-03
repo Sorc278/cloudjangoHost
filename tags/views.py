@@ -61,7 +61,7 @@ def get_suggested_tags_json(request):
 	
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	s.connect(('localhost', NEURAL_SUGGEST_SOCKET))
-	s.sendall(str(tags))
+	s.sendall(str(tags).encode('utf-8'))
 	s.shutdown(socket.SHUT_WR)
 	msg=[]
 	while True:
