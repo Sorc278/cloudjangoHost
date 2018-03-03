@@ -75,7 +75,7 @@ def get_suggested_tags_json(request):
 			'name': Tag.objects.get(id=tag).name,
 			'percent': predicts[tag]*100
 		})
-
+	sorted(sug_list, key=lambda k: k['percent'], reverse=True) 
 	sug_dict = {k: sug_list[k] for k in range(len(sug_list))}
 	return JsonResponse(sug_dict)
 
