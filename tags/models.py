@@ -56,10 +56,10 @@ class TagSuggestion(models.Model):
 def add_tag_suggestions(sender, instance, created, **kwargs):
 	if created:
 		bulk_list = []
-		for post in Post.objects.all():
+		for post in Post.objects.only('id').values_list('id', flat=True):
 			i = TagSuggestion()
 			i.tag = instance
-			i.post = post
+			i.post_id = post
 			bulk_list.append(i)
 		TagSuggestion.objects.bulk_create(bulk_list)
 		
