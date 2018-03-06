@@ -1,6 +1,4 @@
 # cloudjangoHost (name subject to change)
-    
-## Introduction
 
 This project aims to produce a cloud storage application (with many additional functions) for either a single or few different users.
 
@@ -26,9 +24,11 @@ This project aims to produce a cloud storage application (with many additional f
 - ...
 
 ## Third Party
+- [Awesomplete](https://github.com/LeaVerou/awesomplete)
 - [Django](https://github.com/django/django)
-- [Video.js](https://github.com/videojs/video.js)
+- [jQuery](https://github.com/jquery/jquery)
 - [SubtitlesOctopus](https://github.com/Dador/JavascriptSubtitlesOctopus)
+- [Video.js](https://github.com/videojs/video.js)
 - ...
 
 ## Support & Documentation
