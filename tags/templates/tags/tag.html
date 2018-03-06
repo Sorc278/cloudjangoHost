@@ -17,9 +17,9 @@
 			<div class="card-content">
 				<span class="card-title">{{ tag.name }}</span>
 				<p>{{ tag.description }}</p>
-				<p>tag type</p>
-				<p>tag board</p>
-				<p>is staff checkbox</p>
+				<p>Type: {{tag.tag_type}}</p>
+				<p>Min board: {{tag.min_board}}</p>
+				<p>Staff only: {{tag.staff_only}}</p>
 				<p>Times used: {{ tag.occurences }}</p>
 				<hr>
 				<div class="row">

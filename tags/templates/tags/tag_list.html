@@ -19,15 +19,16 @@
 {% block content %}
 <div class="container">
     <div class="row">
-        <div class="card">
-            <div class="card-content">
-                <span class="card-title">Tags</span>
-                {% for tag in tags %}
-                    <div class="col s12 m6 l3">
-                        <a href="{% url 'tags:tag_description' tag=tag %}">{{ tag }}</a>
+        <div class="col s12">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">Tags</span>
+                    <div class="row">
+                        {% for tag in tags %}
+                            <a class="col s12 m6 l3" href="{% url 'tags:tag_description' tag=tag %}">{{ tag }}</a>
+                        {% endfor %}
                     </div>
-                {% endfor %}
-                <br>
+                </div>
             </div>
         </div>
     </div>

@@ -1,3 +1,4 @@
+from ast import literal_eval
 import socket
 
 from django.shortcuts import render, redirect, get_object_or_404
@@ -11,6 +12,8 @@ from .models import Tag, PostTag, TagSuggestion
 
 from .tasks import process_tag_add, process_tag_remove
 
+from cloudjangohost.settings import NEURAL_SUGGEST_SOCKET
+
 # Create your views here.
 
 @login_required
@@ -23,10 +26,11 @@ def tag_list(request):
 @login_required
 def tag_description(request, tag):
 	tag = get_object_or_404(Tag, name=tag)
+	all_tag_ids = list(Tag.objects.values_list('id', flat=True))
 	context = {
 		'tag': tag,
 		'chancesFrom': [],
-		'chancesTo': [],
+		'chancesTo': get_tag_set_predictions([tag.id], all_tag_ids),
 	}
 	return render(request, 'tags/tag.html', context)
 
@@ -53,15 +57,17 @@ def get_suggested_tags_json(request):
 	if not sugs.exists():
 	 	return JsonResponse({})
 
-	from cloudjangohost.settings import NEURAL_SUGGEST_SOCKET
-	from ast import literal_eval
-
 	tags = list(post.tag_set.values_list('id', flat=True))
 	tags_to_predict = list(sugs.values_list('tag__id', flat=True))
 	
+	sug_list = get_tag_set_predictions(tags, tags_to_predict)
+	sug_dict = {k: sug_list[k] for k in range(len(sug_list))}
+	return JsonResponse(sug_dict)
+	
+def get_tag_set_predictions(tag_ids_set, tag_ids_to_predict):
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	s.connect(('localhost', NEURAL_SUGGEST_SOCKET))
-	s.sendall(str(tags).encode('utf-8'))
+	s.sendall(str(tag_ids_set).encode('utf-8'))
 	s.shutdown(socket.SHUT_WR)
 	msg=[]
 	while True:
@@ -70,14 +76,13 @@ def get_suggested_tags_json(request):
 		msg.append(data.decode('utf-8'))
 	predicts = literal_eval(''.join(msg))
 	sug_list = []
-	for tag in tags_to_predict:
+	for tag in tag_ids_to_predict:
 		sug_list.append({
 			'name': Tag.objects.get(id=tag).name,
 			'percent': predicts[tag]*100
 		})
 	sug_list = sorted(sug_list, key=lambda k: k['percent'], reverse=True) 
-	sug_dict = {k: sug_list[k] for k in range(len(sug_list))}
-	return JsonResponse(sug_dict)
+	return sug_list
 
 def remove_suggested_tag_func(filename, tagname, user):
 	post = get_object_or_404(Post, filename=filename)
