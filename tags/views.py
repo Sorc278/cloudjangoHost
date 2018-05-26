@@ -4,13 +4,14 @@ import socket
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.db.models import F
 from django.db.models import Q
 
 from posts.models import Post
 from .models import Tag, PostTag, TagSuggestion
 
-from .tasks import process_tag_add, process_tag_remove
+from .operations import add_tag_to_post, remove_suggestion_from_post
 
 from cloudjangohost.settings import NEURAL_SUGGEST_SOCKET
 
@@ -36,17 +37,17 @@ def tag_description(request, tag):
 
 @login_required
 def add_tag(request):
-	process_tag_add.delay(request.POST.get('filename'), request.POST.get('tag'), request.user.pk)
+	add_tag_to_post(request.POST.get('filename'), request.POST.get('tag'), request.user.pk)
 	return redirect('posts:post', board=request.POST.get('board'), filename=request.POST.get('filename'))
 	
 @login_required
 def add_suggested_tag(request):
-	process_tag_add.delay(request.POST.get('filename'), request.POST.get('tag'), request.user.pk)
+	add_tag_to_post(request.POST.get('filename'), request.POST.get('tag'), request.user.pk)
 	return HttpResponse()
 
 @login_required
 def remove_suggested_tag(request):
-	process_tag_remove.delay(request.POST.get('filename'), request.POST.get('tag'), request.user.pk)
+	remove_suggestion_from_post(request.POST.get('filename'), request.POST.get('tag'), request.user.pk)
 	return HttpResponse()
 
 @login_required
