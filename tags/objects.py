@@ -18,7 +18,7 @@ class TaggablePost:
 	def get_possible_tag_list(self):
 		all_tags = set(Tag.objects.values_list('id', flat=True))
 		tags = set(self.get_tag_list())
-		declined_tags = set(self.get_tag_declination_list)
+		declined_tags = set(self.get_tag_declination_list())
 		return list(all_tags - tags - declined_tags)
 	
 	def add_tag(self, tag_to_add):
