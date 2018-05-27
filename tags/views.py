@@ -9,9 +9,8 @@ from django.db.models import F
 from django.db.models import Q
 
 from posts.models import Post
-from .models import Tag, PostTag, TagSuggestion
-
-from .operations import add_tag_to_post, remove_suggestion_from_post
+from .models import Tag, PostTag, TagDeclination
+from .objects import TaggablePost
 
 from cloudjangohost.settings import NEURAL_SUGGEST_SOCKET
 
@@ -37,29 +36,26 @@ def tag_description(request, tag):
 
 @login_required
 def add_tag(request):
-	add_tag_to_post(request.POST.get('filename'), request.POST.get('tag'), request.user.pk)
+	TaggablePost(request.POST.get('filename'), request.user.pk).add_tag(request.POST.get('tag'))
 	return redirect('posts:post', board=request.POST.get('board'), filename=request.POST.get('filename'))
 	
 @login_required
 def add_suggested_tag(request):
-	add_tag_to_post(request.POST.get('filename'), request.POST.get('tag'), request.user.pk)
+	TaggablePost(request.POST.get('filename'), request.user.pk).add_tag(request.POST.get('tag'))
 	return HttpResponse()
 
 @login_required
-def remove_suggested_tag(request):
-	remove_suggestion_from_post(request.POST.get('filename'), request.POST.get('tag'), request.user.pk)
+def add_tag_declination(request):
+	TaggablePost(request.POST.get('filename'), request.user.pk).add_tag_declination(request.POST.get('tag'))
 	return HttpResponse()
 
 @login_required
 def get_suggested_tags_json(request):
 	post = get_object_or_404(Post, filename=request.POST.get('filename'))
-	sugs = TagSuggestion.objects.filter(post=post)
-
-	if not sugs.exists():
-	 	return JsonResponse({})
+	tPost = TaggablePost(request.POST.get('filename'), None)
 
 	tags = list(post.tag_set.values_list('id', flat=True))
-	tags_to_predict = list(sugs.values_list('tag__id', flat=True))
+	tags_to_predict = tPost.get_possible_tag_list()
 	
 	sug_list = get_tag_set_predictions(tags, tags_to_predict)
 	sug_dict = {k: sug_list[k] for k in range(len(sug_list))}
@@ -84,11 +80,6 @@ def get_tag_set_predictions(tag_ids_set, tag_ids_to_predict):
 		})
 	sug_list = sorted(sug_list, key=lambda k: k['percent'], reverse=True) 
 	return sug_list
-
-def remove_suggested_tag_func(filename, tagname, user):
-	post = get_object_or_404(Post, filename=filename)
-	tag = get_object_or_404(Tag, name=tagname)
-	TagSuggestion.objects.get(post=post, tag=tag).delete()
 	
 def get_tag_lists(request):
 	#Used to get a list of lists, where each list are all tags of a post
@@ -96,14 +87,19 @@ def get_tag_lists(request):
 	from cloudjangohost.settings import TAG_API_KEY
 	key = request.GET.get('key')
 	if not key == TAG_API_KEY:
-		return JsonResponse({'lists': [], 'count': -1})
+		return JsonResponse({})
 	posts = Post.objects.all()
+	all_tags = set(list(Tag.objects.all().values_list('id', flat=True)))
 	p = []
+	p2 = []
 	for post in posts:
+		tPost = TaggablePost(post, None)
 		if post.tag_set.exists():
-			p.append(list(post.tag_set.values_list('id', flat=True)))
+			p.append(tPost.get_tag_list())
+			p2.append(tPost.get_tag_declination_list())
 	ret = {
 		'lists': p,
+		'lists_dec': p2,
 		'count': Tag.objects.count()
 	}
 	return JsonResponse(ret)

@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 
-from tags.models import Tag, TagSuggestion
+from tags.models import Tag
 
 from cloudjangohost.settings import TAG_DICT_URL
 
