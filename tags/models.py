@@ -48,6 +48,7 @@ class TagDeclination(models.Model):
 		indexes = [
 			models.Index(fields=['post']),
 		]
+		unique_together = ("post", "tag")
 
 @receiver(post_save, sender=Tag)
 def update_tag_dictionary(sender, instance, created, **kwargs):

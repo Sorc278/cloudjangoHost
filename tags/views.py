@@ -54,7 +54,7 @@ def get_suggested_tags_json(request):
 	post = get_object_or_404(Post, filename=request.POST.get('filename'))
 	tPost = TaggablePost(request.POST.get('filename'), None)
 
-	tags = list(post.tag_set.values_list('id', flat=True))
+	tags = tPost.get_tag_list()
 	tags_to_predict = tPost.get_possible_tag_list()
 	
 	sug_list = get_tag_set_predictions(tags, tags_to_predict)
@@ -92,14 +92,17 @@ def get_tag_lists(request):
 	all_tags = set(list(Tag.objects.all().values_list('id', flat=True)))
 	p = []
 	p2 = []
+	p3 = []
 	for post in posts:
 		tPost = TaggablePost(post, None)
 		if post.tag_set.exists():
 			p.append(tPost.get_tag_list())
 			p2.append(tPost.get_tag_declination_list())
+			p3.append(tPost.get_possible_tag_list())
 	ret = {
 		'lists': p,
 		'lists_dec': p2,
+		'list_pos': p3,
 		'count': Tag.objects.count()
 	}
 	return JsonResponse(ret)
