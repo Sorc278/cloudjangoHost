@@ -13,7 +13,7 @@ class TaggablePost:
 		return list(self.post.tag_set.values_list('id', flat=True))
 		
 	def get_tag_declination_list(self):
-		return list(TagDeclination.objects.filter(post=self.post).values_list('id', flat=True))
+		return list(TagDeclination.objects.filter(post=self.post).values_list('tag_id', flat=True))
 		
 	def get_possible_tag_list(self):
 		all_tags = set(Tag.objects.values_list('id', flat=True))
