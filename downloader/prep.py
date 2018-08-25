@@ -66,8 +66,6 @@ def create_upload(user, filename, private, board, url, extension, title, downloa
         raise ValueError('Filesize must be an integer in KB')
     else:
         upload.filesize = filesize
-    
-    upload.filesize
     upload.save()
     return upload
 

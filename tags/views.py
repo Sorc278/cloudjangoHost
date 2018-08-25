@@ -92,17 +92,14 @@ def get_tag_lists(request):
 	all_tags = set(list(Tag.objects.all().values_list('id', flat=True)))
 	p = []
 	p2 = []
-	p3 = []
 	for post in posts:
 		tPost = TaggablePost(post, None)
 		if post.tag_set.exists():
 			p.append(tPost.get_tag_list())
 			p2.append(tPost.get_tag_declination_list())
-			p3.append(tPost.get_possible_tag_list())
 	ret = {
 		'lists': p,
 		'lists_dec': p2,
-		'list_pos': p3,
 		'count': Tag.objects.count()
 	}
 	return JsonResponse(ret)

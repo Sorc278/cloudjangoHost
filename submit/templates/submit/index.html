@@ -6,6 +6,16 @@
 {% include 'submit/upload_js.html' %}
 {% include 'submit/youtube_js.html' %}
 {% include 'submit/imgur_js.html' %}
+
+<script type="text/javascript">
+function setActiveUrl(url){
+    var submit_url_ids = ["url_url", "youtube_url", "imgur_url"];
+    for(var url_id of submit_url_ids){
+        document.getElementById(url_id).name = url_id;
+    }
+    document.getElementById(url).name = "url";
+}
+</script>
 {% endblock %}
 
 {% block jsInit %}
@@ -68,11 +78,11 @@
                         <div class="row">
                             <div class="col s12">
                                 <ul class="tabs tabs-fixed-width">
-                                    <li class="tab col s3"><a href="#url" onclick="$('#submit_type').val('url');" class="active">URL</a></li>
-                                    <li class="tab col s3"><a href="#imgur" onclick="$('#submit_type').val('imgur');">Imgur</a></li>
-                                    <li class="tab col s3"><a href="#youtube" onclick="$('#submit_type').val('youtube');">Youtube</a></li>
+                                    <li class="tab col s3"><a href="#url" onclick="$('#submit_type').val('url');setActiveUrl('url_url')" class="active">URL</a></li>
+                                    <li class="tab col s3"><a href="#imgur" onclick="$('#submit_type').val('imgur');setActiveUrl('imgur_url')">Imgur</a></li>
+                                    <li class="tab col s3"><a href="#youtube" onclick="$('#submit_type').val('youtube');setActiveUrl('youtube_url')">Youtube</a></li>
                                     <li class="tab col s3"><a href="#upload" onclick="$('#submit_type').val('upload');">Upload</a></li>
-                                    <li class="tab col s3 disabled"><a href="#website" onclick="$('#submit_type').val('website');">Website</a></li>
+                                    <li class="tab col s3 disabled"><a href="#website">Website</a></li>
                                 </ul>
                             </div>
                             <input id="submit_type" type="text" name="submit_type" value="url" autocomplete='off' hidden>
@@ -83,7 +93,7 @@
                             <div class="row">
                                 <div class="input-field col s12">
                                     <i class="material-icons prefix">open_in_browser</i>
-                                    <input id="url_url" name="url_url" type="text" autocomplete='off'>
+                                    <input id="url_url" name="url" type="text" autocomplete='off'>
                                     <label for="url_url">Paste URL</label>
                                 </div>
                             </div>
